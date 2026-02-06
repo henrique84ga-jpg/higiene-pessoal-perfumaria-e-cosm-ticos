@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
@@ -12,6 +12,7 @@
             --st-color: #8e44ad;
             --bg: #f4f6f7;
             --panel-bg: #ffffff;
+            --pmz-color: #e67e22;
         }
 
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg); padding: 0; margin: 0; color: #333; }
@@ -65,10 +66,9 @@
         .btn-login:hover { background-color: #1a5276; }
         .error-msg { color: red; font-size: 13px; margin-top: 10px; display: none; }
 
-        /* --- CONTEÚDO PRINCIPAL (OCULTO INICIALMENTE) --- */
+        /* --- CONTEÚDO PRINCIPAL --- */
         #app-content { display: none; padding: 20px; max-width: 1600px; margin: 0 auto; }
 
-        /* --- ESTILOS DO SISTEMA ANTERIOR --- */
         .simulator-panel {
             background: var(--panel-bg);
             padding: 20px;
@@ -108,12 +108,17 @@
         .scenario-title { font-size: 14px; font-weight: bold; margin-bottom: 15px; text-transform: uppercase; text-align: center; border-bottom: 1px solid rgba(0,0,0,0.1); padding-bottom: 5px; }
         .scenario-a .scenario-title { color: #2e7d32; }
         .scenario-b .scenario-title { color: var(--st-color); }
+        
         .res-line { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 13px; }
         .res-destaque { background-color: rgba(255,255,255,0.6); padding: 8px; border-radius: 4px; font-weight: bold; margin-top: 10px; border: 1px solid rgba(0,0,0,0.1); font-size: 15px; }
         .price-tag { font-size: 20px; color: #2c3e50; display: block; text-align: right; }
         .calc-logic { font-family: 'Consolas', monospace; font-size: 10px; color: #555; margin-top: 5px; text-align: right; padding: 4px; border-top: 1px dotted #ccc; background: rgba(255,255,255,0.4); }
         .calc-logic span { display: block; }
         .calc-highlight { color: #d35400; font-weight: bold; }
+
+        .profit-section { margin-top: 10px; border-top: 1px dashed #ccc; padding-top: 8px; background: rgba(255,255,255,0.3); border-radius: 4px; padding: 8px; }
+        .pmz-tag { color: var(--pmz-color); font-weight: bold; }
+        .lucro-tag { color: var(--accent); font-weight: bold; }
 
         .search-area { margin-bottom: 15px; position: relative; }
         .search-box { width: 100%; padding: 15px; padding-left: 45px; border: 1px solid #ccc; border-radius: 6px; font-size: 16px; box-sizing: border-box; }
@@ -201,14 +206,34 @@
                         <strong id="resAIcmsRate" style="color:#d32f2f">0%</strong>
                     </div>
                     <div class="res-line">
-                        <span>(-) Débito na Venda:</span> 
-                        <span id="resADebito" style="color:#d32f2f">R$ 0,00</span>
+                        <span>PIS/COFINS (Saída):</span> 
+                        <strong id="resAPisRate" style="color:#d32f2f">0%</strong>
+                    </div>
+                    <div class="res-line">
+                        <span>(-) Impostos na Venda:</span> 
+                        <span id="resADebitoTotal" style="color:#d32f2f">R$ 0,00</span>
                     </div>
 
                     <div class="res-destaque">
                         <span>Preço Sugerido:</span>
                         <span id="resAPreco" class="price-tag">R$ 0,00</span>
                     </div>
+
+                    <div class="profit-section">
+                        <div class="res-line">
+                            <span>PMZ (Margem Zero):</span> 
+                            <strong id="resAPMZ" class="pmz-tag">R$ 0,00</strong>
+                        </div>
+                        <div class="res-line">
+                            <span>Lucro Líquido (R$):</span> 
+                            <strong id="resALucroR" class="lucro-tag">R$ 0,00</strong>
+                        </div>
+                        <div class="res-line">
+                            <span>Lucro Líquido (%):</span> 
+                            <strong id="resALucroP" class="lucro-tag">0%</strong>
+                        </div>
+                    </div>
+
                     <div class="calc-logic" id="logicA"></div>
                 </div>
 
@@ -220,18 +245,34 @@
                     <div class="res-line" style="border-bottom:1px dashed #ccc; padding-bottom:5px;"><span>= Custo Total (Chegada):</span> <strong id="resBCustoTotal">R$ 0,00</strong></div>
                     
                     <div class="res-line" style="margin-top:10px;">
-                        <span>Alíquota ICMS Saída:</span> 
-                        <strong style="color:#888;">0% (Retido Anteriormente)</strong>
+                        <span>ICMS Saída:</span> 
+                        <strong style="color:#888;">0% (Retido)</strong>
                     </div>
                     <div class="res-line">
-                        <span>(-) Débito na Venda:</span> 
-                        <span style="color:#888;">R$ 0,00</span>
+                        <span>PIS/COFINS (Saída):</span> 
+                        <strong id="resBPisRate" style="color:#888;">0%</strong>
                     </div>
 
                     <div class="res-destaque">
                         <span>Preço Sugerido (ST):</span>
                         <span id="resBPreco" class="price-tag">R$ 0,00</span>
                     </div>
+
+                    <div class="profit-section">
+                        <div class="res-line">
+                            <span>PMZ (Margem Zero):</span> 
+                            <strong id="resBPMZ" class="pmz-tag">R$ 0,00</strong>
+                        </div>
+                        <div class="res-line">
+                            <span>Lucro Líquido (R$):</span> 
+                            <strong id="resBLucroR" class="lucro-tag">R$ 0,00</strong>
+                        </div>
+                        <div class="res-line">
+                            <span>Lucro Líquido (%):</span> 
+                            <strong id="resBLucroP" class="lucro-tag">0%</strong>
+                        </div>
+                    </div>
+
                     <div class="calc-logic" id="logicB"></div>
                 </div>
 
@@ -267,12 +308,10 @@
 // =================================================================================
 // SEGURANÇA E LOGIN (HASH SHA-256)
 // =================================================================================
-
-// Lista de Usuários e Hashes das Senhas (SHA-256)
-// "Henrique" / "123456" -> 8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92
 const CREDENCIAIS = {
-    "henrique": "8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92"
-    // Para adicionar mais usuários, gere o hash SHA-256 da senha e adicione aqui
+    "henrique": "8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92",
+	"rodolfo": "f10c815242d5323aa6230f78ddc4c2206789999175fa39195ffb47bb7bece612"
+	
 };
 
 async function hashSenha(senha) {
@@ -296,102 +335,103 @@ async function fazerLogin() {
     const hashGerado = await hashSenha(passInput);
 
     if (hashGerado === CREDENCIAIS[userInput]) {
-        // Sucesso
         document.getElementById('login-screen').style.display = 'none';
         document.getElementById('app-content').style.display = 'block';
-        inicializar(); // Carrega o sistema apenas após logar
+        inicializar();
     } else {
         errorMsg.style.display = 'block';
     }
 }
 
 // =================================================================================
-// DADOS
+// DADOS CSV - TODAS AS COLUNAS MANTIDAS
+// COLUNA NOVA "PIS_COFINS" ADICIONADA NA POSIÇÃO 6 (M=Monofásico, Z=Zero, T=Tributado)
+// **CORREÇÃO: ITENS 52, 53, 54, 55 AGORA SÃO 'T' (TRIBUTADOS)**
 // =================================================================================
-const csvDados = `ITEM;CEST;NCM/SH;DESCRIÇÃO;ICMS SAIDA VAREJO;MVA(IVA);REDUÇÃO FORNECEDOR ;LEGISLAÇÃO
-1;20.001.00;1211.90.90;Henna (embalagens de conteúdo inferior ou igual a 200 g);18%;57,51%;SEM REDUÇÃO FORNECEDOR;artigo 52, inciso I, do RICMS/SP.
-2;20.002.00;2712.10.00;Vaselina;18%;110,04%;SEM REDUÇÃO FORNECEDOR;artigo 52, inciso I, do RICMS/SP.
-3;20.003.00;2814.20.00;Amoníaco em solução aquosa (amônia);18%;115,15%;SEM REDUÇÃO FORNECEDOR;artigo 52, inciso I, do RICMS/SP.
-4;20.004.00;2847.00.00;Peróxido de hidrogênio, em embalagens de conteúdo inferior ou igual a 500 ml;18%;57,94%;SEM REDUÇÃO FORNECEDOR;artigo 52, inciso I, do RICMS/SP.
-5;20.005.00;3006.70.00;Lubrificação íntima;18%;66,17%;SEM REDUÇÃO FORNECEDOR;artigo 52, inciso I, do RICMS/SP.
-6;20.006.00;3301;"Óleos essenciais (desterpenados ou não), incluídos os chamados “concretos” ou “absolutos”; resinoides; oleorresinas de extração; soluções concentradas de óleos essenciais em gorduras, em óleos fixos, em ceras ou em matérias análogas, obtidas por tratamento de flores através de substâncias gordas ou por maceração; subprodutos terpênicos residuais da desterpenação dos óleos essenciais; águas destiladas aromáticas e soluções aquosas de óleos essenciais, em embalagens de conteúdo inferior ou igual a 500 ml";18%;61,91%;SEM REDUÇÃO FORNECEDOR;artigo 52, inciso I, do RICMS/SP.
-7;20.007.00;3303.00.10;Perfumes (extratos);25%;70,72%;REDUÇÃO FORNECEDOR 25% (-) 52% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
-8;20.008.00;3303.00.20;Águas-de-colônia;25%;86,22%;REDUÇÃO FORNECEDOR 25% (-) 52% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
-9;20.009.00;3304.10.00;Produtos de maquilagem para os lábios;25%;75,15%;REDUÇÃO FORNECEDOR 25% (-) 52% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
-10;20.010.00;3304.20.10;Sombra, delineador, lápis para sobrancelhas e rímel;25%;76,22%;REDUÇÃO FORNECEDOR 25% (-) 52% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
-11;20.011.00;3304.20.90;Outros produtos de maquilagem para os olhos;25%;83,28%;REDUÇÃO FORNECEDOR 25% (-) 52% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
-12;20.012.00;3304.30.00;Preparações para manicuros e pedicuros, incluindo removedores de esmalte à base de acetona;25%;62,43%;REDUÇÃO FORNECEDOR 25% (-) 52% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
-13;20.013.00;3304.91.00;Pós, incluídos os compactos;25%;55,77%;REDUÇÃO FORNECEDOR 25% (-) 52% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
-14;20.014.00;3304.99.10;Cremes de beleza, cremes nutritivos e loções tônicas;25%;66,63%;REDUÇÃO FORNECEDOR 25% (-) 52% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
-15;20.015.00;3304.99.90;Outros produtos de beleza ou de maquilagem preparados e preparações para conservação ou cuidados da pele, exceto as preparações solares e antissolares;25%;70,30%;REDUÇÃO FORNECEDOR 25% (-) 52% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
-16;20.016.00;3304.99.90;Preparações solares e antissolares;18%;42,40%;SEM REDUÇÃO FORNECEDOR;artigo 52, inciso I, do RICMS/SP.
-17;20.017.00;3305.10.00;Xampus para o cabelo;18%;42,66%;REDUÇÃO FORNECEDOR 18% (-) 33,33% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
-18;20.018.00;3305.20.00;Preparações para ondulação ou alisamento, permanentes, dos cabelos;18%;62,08%;REDUÇÃO FORNECEDOR 18% (-) 33,33% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
-19;20.019.00;3305.30.00;Laquês para o cabelo;25%;58,03%;REDUÇÃO FORNECEDOR 25% (-) 52% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
-20;20.020.00;3305.90.00;Outras preparações capilares, incluindo máscaras e Finallizadores;25%;70,24%;REDUÇÃO FORNECEDOR 25% (-) 52% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
-21;20.021.00;3305.90.00;Condicionadores;25%;59,30%;REDUÇÃO FORNECEDOR 25% (-) 52% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
-22;20.022.00;3305.90.00;Tintura para o cabelo;25%;45,04%;REDUÇÃO FORNECEDOR 25% (-) 52% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
-23;20.023.00;3306.10.00;Dentifrícios;12%;36,90%;A alíquota interna de 12%, está prevista no artigo 54, inciso XVIII, do RICMS/SP.;
-24;20.024.00;3306.20.00;Fios utilizados para limpar os espaços interdentais (fios dentais);18%;73,44%;REDUÇÃO FORNECEDOR 18% (-) 33,33% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
-25;20.025.00;3306.90.00;Outras preparações para higiene bucal ou dentária;18%;41,10%;SEM REDUÇÃO FORNECEDOR;artigo 52, inciso I, do RICMS/SP.
-26;20.026.00;3307.10.00;Preparações para barbear (antes, durante ou após);25%;64,80%;REDUÇÃO FORNECEDOR 25% (-) 52% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
-27;20.027.00;3307.20.10;Desodorantes (desodorizantes) corporais líquidos, exceto os classificados no CEST 20.027.01;18%;45,17%;REDUÇÃO FORNECEDOR 18% (-) 33,33% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
-28;20.027.01;3307.20.10;Loções e óleos desodorantes hidratantes líquidos;18%;41,72%;REDUÇÃO FORNECEDOR 18% (-) 33,33% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
-29;20.028.00;3307.20.10;Antiperspirantes líquidos;18%;37,30%;REDUÇÃO FORNECEDOR 18% (-) 33,33% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
-30;20.029.00;3307.20.90;Outros desodorantes (desodorizantes) corporais, exceto os classificados no CEST 20.029.01;18%;59,72%;REDUÇÃO FORNECEDOR 18% (-) 33,33% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
-31;20.029.01;3307.20.90;Outras loções e óleos desodorantes hidratantes;18%;43,34%;REDUÇÃO FORNECEDOR 18% (-) 33,33% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
-32;20.030.00;3307.20.90;Outros antiperspirantes;18%;56,76%;REDUÇÃO FORNECEDOR 18% (-) 33,33% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
-33;20.031.00;3307.30.00;Sais perfumados e outras preparações para banhos;25%;74,35%;REDUÇÃO FORNECEDOR 25% (-) 52% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
-34;20.032.00;3307.90.00;Outros produtos de perfumaria preparados;25%;50,62%;REDUÇÃO FORNECEDOR 25% (-) 52% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
-35;20.032.01;3307.90.00;Outros produtos de toucador preparados;25%;60,93%;REDUÇÃO FORNECEDOR 25% (-) 52% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
-36;20.033.00;3307.90.00;Soluções para lentes de contato ou para olhos artificiais;18%;65,93%;REDUÇÃO FORNECEDOR 18% (-) 33,33% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
-37;20.034.00;3401.11.90;Sabões de toucador em barras, pedaços ou figuras moldados, exceto CEST 20.034.01;18%;37,19%;REDUÇÃO FORNECEDOR 18% (-) 33,33% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
-38;20.034.01;3401.11.90;Lenços umedecidos;18%;53,00%;REDUÇÃO FORNECEDOR 18% (-) 33,33% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
-39;20.035.00;3401.19.00;Outros sabões, produtos e preparações, em barras, pedaços ou figuras moldados;18%;64,83%;REDUÇÃO FORNECEDOR 18% (-) 33,33% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
-40;20.036.00;3401.20.10;Sabões de toucador sob outras formas;18%;51,55%;REDUÇÃO FORNECEDOR 18% (-) 33,33% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
-41;20.037.00;3401.30.00;Produtos e preparações orgânicos tensoativos para lavagem da pele, na forma de líquido ou de creme, acondicionados para venda a retalho, mesmo contendo sabão;18%;46,08%;REDUÇÃO FORNECEDOR 18% (-) 33,33% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
-42;20.038.00;4014.90.10;Bolsa para gelo ou para água quente;18%;71,91%;SEM REDUÇÃO FORNECEDOR;artigo 52, inciso I, do RICMS/SP.
-43;20.039.00;4014.90.90;Chupetas e bicos para mamadeiras e para chupetas, de borracha;18%;94,55%;SEM REDUÇÃO FORNECEDOR;artigo 52, inciso I, do RICMS/SP.
-44;20.040.00;3924.90.00;Chupetas e bicos para mamadeiras e para chupetas, de silicone;18%;69,01%;SEM REDUÇÃO FORNECEDOR;artigo 52, inciso I, do RICMS/SP.
-44;20.040.00;3926.90.40;Chupetas e bicos para mamadeiras e para chupetas, de silicone;18%;69,01%;SEM REDUÇÃO FORNECEDOR;artigo 52, inciso I, do RICMS/SP.
-44;20.040.00;3926.90.90;Chupetas e bicos para mamadeiras e para chupetas, de silicone;18%;69,01%;SEM REDUÇÃO FORNECEDOR;artigo 52, inciso I, do RICMS/SP.
-45;20.041.00;4202.1;Malas e maletas de toucador;18%;84,22%;SEM REDUÇÃO FORNECEDOR;artigo 52, inciso I, do RICMS/SP.
-46;20.042.00;4818.10.00;Papel higiênico - folha simples;18%;53,60%;REDUÇÃO FORNECEDOR 18% (-) 33,33% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
-​47;​20.043.00;​4818.10.00;​Papel higiênico - folha dupla, tripla e quádrupla;18%;51,57%;REDUÇÃO FORNECEDOR 18% (-) 33,33% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
-47;20.043.00;4818.10.00;Papel higiênico - folha dupla e tripla;18%;51,57%;REDUÇÃO FORNECEDOR 18% (-) 33,33% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
-48;20.044.00;4818.20.00;Lenços (incluídos os de maquilagem) e toalhas de mão;18%;85,77%;REDUÇÃO FORNECEDOR 18% (-) 33,33% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
-49;20.045.00;4818.20.00;Papel toalha de uso institucional do tipo comercializado em rolos igual ou superior a 80 metros e do tipo comercializado em folhas intercaladas;18%;65,18%;SEM REDUÇÃO FORNECEDOR;artigo 52, inciso I, do RICMS/SP.
-50;20.046.00;4818.30.00;Toalhas e guardanapos de mesa;18%;76,81%;REDUÇÃO FORNECEDOR 18% (-) 33,33% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
-51;20.047.00;4818.90.90;Toalhas de cozinha (papel toalha de uso doméstico);18%;70,72%;REDUÇÃO FORNECEDOR 18% (-) 33,33% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
-52;20.048.00;9619.00.00;Fraldas, exceto os descritos no CEST 20.048.01;18%;40,77%;REDUÇÃO FORNECEDOR 18% (-) 33,33% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
-53;20.048.01;9619.00.00;Fraldas de fibras têxteis;18%;70,88%;REDUÇÃO FORNECEDOR 18% (-) 33,33% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
-54;20.049.00;9619.00.00;Tampões higiênicos;18%;48,08%;REDUÇÃO FORNECEDOR 18% (-) 33,33% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
-55;20.050.00;9619.00.00;Absorventes higiênicos externos;18%;48,08%;REDUÇÃO FORNECEDOR 18% (-) 33,33% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
-56;20.051.00;5601.21.90;Hastes flexíveis (uso não medicinal);18%;64,01%;REDUÇÃO FORNECEDOR 18% (-) 33,33% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
-57;20.052.00;5603.92.90;Sutiã descartável, assemelhados e papel para depilação;18%;126,90%;REDUÇÃO FORNECEDOR 18% (-) 33,33% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
-58;20.053.00;8203.20.90;Pinças para sobrancelhas;18%;72,88%;SEM REDUÇÃO FORNECEDOR;artigo 52, inciso I, do RICMS/SP.
-59;20.054.00;8214.10.00;Espátulas (artigos de cutelaria);18%;72,88%;SEM REDUÇÃO FORNECEDOR;artigo 52, inciso I, do RICMS/SP.
-60;20.055.00;8214.20.00;Utensílios e sortidos de utensílios de manicuros ou de pedicuros (incluídas as limas para unhas);18%;90,78%;SEM REDUÇÃO FORNECEDOR;artigo 52, inciso I, do RICMS/SP.
-61;20.056.00;9025.11.10;Termômetros, inclusive o digital;18%;75,41%;REDUÇÃO FORNECEDOR 18% (-) 33,33% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
-61;20.056.00;9025.19.90;Termômetros, inclusive o digital;18%;75,41%;REDUÇÃO FORNECEDOR 18% (-) 33,33% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
-62;20.057.00;9603.2;Escovas e pincéis de barba, escovas para cabelos, para cílios ou para unhas e outras escovas de toucador de pessoas, incluídas as que sejam partes de aparelhos, exceto escovas de dentes;18%;68,94%;REDUÇÃO FORNECEDOR 18% (-) 33,33% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
-63;20.058.00;9603.21.00;Escovas de dentes, incluídas as escovas para dentaduras;18%;51,99%;REDUÇÃO FORNECEDOR 18% (-) 33,33% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
-64;20.059.00;9603.30.00;Pincéis para aplicação de produtos cosméticos;18%;60,49%;SEM REDUÇÃO FORNECEDOR;artigo 52, inciso I, do RICMS/SP.
-65;20.060.00;9605.00.00;Sortidos de viagem, para toucador de pessoas para costura ou para limpeza de calçado ou de roupas;18%;108,51%;SEM REDUÇÃO FORNECEDOR;artigo 52, inciso I, do RICMS/SP.
-66;20.061.00;9615;"Pentes, travessas para cabelo e artigos semelhantes; grampos (alfinetes) para cabelo; pinças (pinceguiches), onduladores, bobes (rolos) e artefatos semelhantes para penteados, e suas partes, exceto os classificados na posição 8516 e suas partes";18%;69,35%;SEM REDUÇÃO FORNECEDOR;artigo 52, inciso I, do RICMS/SP.
-67;20.062.00;9616.20.00;Borlas ou esponjas para pós ou para aplicação de outros cosméticos ou de produtos de toucador;18%;78,86%;SEM REDUÇÃO FORNECEDOR;artigo 52, inciso I, do RICMS/SP.
-​68;​20.063.00;​3923.30.90;​Mamadeiras;18%;83,30%;SEM REDUÇÃO FORNECEDOR;artigo 52, inciso I, do RICMS/SP.
-​68;​20.063.00;3924.10.00;​Mamadeiras;18%;83,30%;SEM REDUÇÃO FORNECEDOR;artigo 52, inciso I, do RICMS/SP.
-​68;​20.063.00;3924.90.00;​Mamadeiras;18%;83,30%;SEM REDUÇÃO FORNECEDOR;artigo 52, inciso I, do RICMS/SP.
-​68;​20.063.00;4014.90.90;​Mamadeiras;18%;83,30%;SEM REDUÇÃO FORNECEDOR;artigo 52, inciso I, do RICMS/SP.
-​68;​20.063.00;7013;​Mamadeiras;18%;83,30%;SEM REDUÇÃO FORNECEDOR;artigo 52, inciso I, do RICMS/SP.
-68;20.063.00;3923.30.00;Mamadeiras;18%;83,30%;SEM REDUÇÃO FORNECEDOR;artigo 52, inciso I, do RICMS/SP.
-68;​20.063.00;3924.90.00;Mamadeiras;18%;83,30%;SEM REDUÇÃO FORNECEDOR;artigo 52, inciso I, do RICMS/SP.
-68;​20.063.00;3924.10.00;Mamadeiras;18%;83,30%;SEM REDUÇÃO FORNECEDOR;artigo 52, inciso I, do RICMS/SP.
-68;20.063.00;4014.90.90;Mamadeiras;18%;83,30%;SEM REDUÇÃO FORNECEDOR;artigo 52, inciso I, do RICMS/SP.
-68;​20.063.00;7010.20.00;Mamadeiras;18%;83,30%;SEM REDUÇÃO FORNECEDOR;artigo 52, inciso I, do RICMS/SP.
-69;20.064.00;8212.10.20;Aparelhos e lâminas de barbear;18%;43,91%;SEM REDUÇÃO FORNECEDOR;artigo 52, inciso I, do RICMS/SP.
-69;20.064.00;8212.20.10;Aparelhos e lâminas de barbear;18%;43,91%;SEM REDUÇÃO FORNECEDOR;artigo 52, inciso I, do RICMS/SP.
+const csvDados = `ITEM;CEST;NCM/SH;DESCRIÇÃO;ICMS SAIDA VAREJO;MVA(IVA);PIS_COFINS;REDUÇÃO FORNECEDOR ;LEGISLAÇÃO
+1;20.001.00;1211.90.90;Henna (embalagens de conteúdo inferior ou igual a 200 g);18%;57,51%;T;SEM REDUÇÃO FORNECEDOR;artigo 52, inciso I, do RICMS/SP.
+2;20.002.00;2712.10.00;Vaselina;18%;110,04%;T;SEM REDUÇÃO FORNECEDOR;artigo 52, inciso I, do RICMS/SP.
+3;20.003.00;2814.20.00;Amoníaco em solução aquosa (amônia);18%;115,15%;T;SEM REDUÇÃO FORNECEDOR;artigo 52, inciso I, do RICMS/SP.
+4;20.004.00;2847.00.00;Peróxido de hidrogênio, em embalagens de conteúdo inferior ou igual a 500 ml;18%;57,94%;T;SEM REDUÇÃO FORNECEDOR;artigo 52, inciso I, do RICMS/SP.
+5;20.005.00;3006.70.00;Lubrificação íntima;18%;66,17%;M;SEM REDUÇÃO FORNECEDOR;artigo 52, inciso I, do RICMS/SP.
+6;20.006.00;3301;"Óleos essenciais (desterpenados ou não), incluídos os chamados “concretos” ou “absolutos”; resinoides; oleorresinas de extração; soluções concentradas de óleos essenciais em gorduras, em óleos fixos, em ceras ou em matérias análogas, obtidas por tratamento de flores através de substâncias gordas ou por maceração; subprodutos terpênicos residuais da desterpenação dos óleos essenciais; águas destiladas aromáticas e soluções aquosas de óleos essenciais, em embalagens de conteúdo inferior ou igual a 500 ml";18%;61,91%;M;SEM REDUÇÃO FORNECEDOR;artigo 52, inciso I, do RICMS/SP.
+7;20.007.00;3303.00.10;Perfumes (extratos);25%;70,72%;M;REDUÇÃO FORNECEDOR 25% (-) 52% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
+8;20.008.00;3303.00.20;Águas-de-colônia;25%;86,22%;M;REDUÇÃO FORNECEDOR 25% (-) 52% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
+9;20.009.00;3304.10.00;Produtos de maquilagem para os lábios;25%;75,15%;M;REDUÇÃO FORNECEDOR 25% (-) 52% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
+10;20.010.00;3304.20.10;Sombra, delineador, lápis para sobrancelhas e rímel;25%;76,22%;M;REDUÇÃO FORNECEDOR 25% (-) 52% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
+11;20.011.00;3304.20.90;Outros produtos de maquilagem para os olhos;25%;83,28%;M;REDUÇÃO FORNECEDOR 25% (-) 52% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
+12;20.012.00;3304.30.00;Preparações para manicuros e pedicuros, incluindo removedores de esmalte à base de acetona;25%;62,43%;M;REDUÇÃO FORNECEDOR 25% (-) 52% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
+13;20.013.00;3304.91.00;Pós, incluídos os compactos;25%;55,77%;M;REDUÇÃO FORNECEDOR 25% (-) 52% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
+14;20.014.00;3304.99.10;Cremes de beleza, cremes nutritivos e loções tônicas;25%;66,63%;M;REDUÇÃO FORNECEDOR 25% (-) 52% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
+15;20.015.00;3304.99.90;Outros produtos de beleza ou de maquilagem preparados e preparações para conservação ou cuidados da pele, exceto as preparações solares e antissolares;25%;70,30%;M;REDUÇÃO FORNECEDOR 25% (-) 52% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
+16;20.016.00;3304.99.90;Preparações solares e antissolares;18%;42,40%;M;SEM REDUÇÃO FORNECEDOR;artigo 52, inciso I, do RICMS/SP.
+17;20.017.00;3305.10.00;Xampus para o cabelo;18%;42,66%;M;REDUÇÃO FORNECEDOR 18% (-) 33,33% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
+18;20.018.00;3305.20.00;Preparações para ondulação ou alisamento, permanentes, dos cabelos;18%;62,08%;M;REDUÇÃO FORNECEDOR 18% (-) 33,33% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
+19;20.019.00;3305.30.00;Laquês para o cabelo;25%;58,03%;M;REDUÇÃO FORNECEDOR 25% (-) 52% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
+20;20.020.00;3305.90.00;Outras preparações capilares, incluindo máscaras e Finallizadores;25%;70,24%;M;REDUÇÃO FORNECEDOR 25% (-) 52% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
+21;20.021.00;3305.90.00;Condicionadores;25%;59,30%;M;REDUÇÃO FORNECEDOR 25% (-) 52% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
+22;20.022.00;3305.90.00;Tintura para o cabelo;25%;45,04%;M;REDUÇÃO FORNECEDOR 25% (-) 52% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
+23;20.023.00;3306.10.00;Dentifrícios;12%;36,90%;Z;A alíquota interna de 12%, está prevista no artigo 54, inciso XVIII, do RICMS/SP.;
+24;20.024.00;3306.20.00;Fios utilizados para limpar os espaços interdentais (fios dentais);18%;73,44%;M;REDUÇÃO FORNECEDOR 18% (-) 33,33% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
+25;20.025.00;3306.90.00;Outras preparações para higiene bucal ou dentária;18%;41,10%;M;SEM REDUÇÃO FORNECEDOR;artigo 52, inciso I, do RICMS/SP.
+26;20.026.00;3307.10.00;Preparações para barbear (antes, durante ou após);25%;64,80%;M;REDUÇÃO FORNECEDOR 25% (-) 52% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
+27;20.027.00;3307.20.10;Desodorantes (desodorizantes) corporais líquidos, exceto os classificados no CEST 20.027.01;18%;45,17%;M;REDUÇÃO FORNECEDOR 18% (-) 33,33% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
+28;20.027.01;3307.20.10;Loções e óleos desodorantes hidratantes líquidos;18%;41,72%;M;REDUÇÃO FORNECEDOR 18% (-) 33,33% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
+29;20.028.00;3307.20.10;Antiperspirantes líquidos;18%;37,30%;M;REDUÇÃO FORNECEDOR 18% (-) 33,33% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
+30;20.029.00;3307.20.90;Outros desodorantes (desodorizantes) corporais, exceto os classificados no CEST 20.029.01;18%;59,72%;M;REDUÇÃO FORNECEDOR 18% (-) 33,33% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
+31;20.029.01;3307.20.90;Outras loções e óleos desodorantes hidratantes;18%;43,34%;M;REDUÇÃO FORNECEDOR 18% (-) 33,33% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
+32;20.030.00;3307.20.90;Outros antiperspirantes;18%;56,76%;M;REDUÇÃO FORNECEDOR 18% (-) 33,33% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
+33;20.031.00;3307.30.00;Sais perfumados e outras preparações para banhos;25%;74,35%;M;REDUÇÃO FORNECEDOR 25% (-) 52% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
+34;20.032.00;3307.90.00;Outros produtos de perfumaria preparados;25%;50,62%;M;REDUÇÃO FORNECEDOR 25% (-) 52% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
+35;20.032.01;3307.90.00;Outros produtos de toucador preparados;25%;60,93%;M;REDUÇÃO FORNECEDOR 25% (-) 52% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
+36;20.033.00;3307.90.00;Soluções para lentes de contato ou para olhos artificiais;18%;65,93%;M;REDUÇÃO FORNECEDOR 18% (-) 33,33% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
+37;20.034.00;3401.11.90;Sabões de toucador em barras, pedaços ou figuras moldados, exceto CEST 20.034.01;18%;37,19%;M;REDUÇÃO FORNECEDOR 18% (-) 33,33% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
+38;20.034.01;3401.11.90;Lenços umedecidos;18%;53,00%;M;REDUÇÃO FORNECEDOR 18% (-) 33,33% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
+39;20.035.00;3401.19.00;Outros sabões, produtos e preparações, em barras, pedaços ou figuras moldados;18%;64,83%;M;REDUÇÃO FORNECEDOR 18% (-) 33,33% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
+40;20.036.00;3401.20.10;Sabões de toucador sob outras formas;18%;51,55%;M;REDUÇÃO FORNECEDOR 18% (-) 33,33% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
+41;20.037.00;3401.30.00;Produtos e preparações orgânicos tensoativos para lavagem da pele, na forma de líquido ou de creme, acondicionados para venda a retalho, mesmo contendo sabão;18%;46,08%;M;REDUÇÃO FORNECEDOR 18% (-) 33,33% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
+42;20.038.00;4014.90.10;Bolsa para gelo ou para água quente;18%;71,91%;T;SEM REDUÇÃO FORNECEDOR;artigo 52, inciso I, do RICMS/SP.
+43;20.039.00;4014.90.90;Chupetas e bicos para mamadeiras e para chupetas, de borracha;18%;94,55%;T;SEM REDUÇÃO FORNECEDOR;artigo 52, inciso I, do RICMS/SP.
+44;20.040.00;3924.90.00;Chupetas e bicos para mamadeiras e para chupetas, de silicone;18%;69,01%;T;SEM REDUÇÃO FORNECEDOR;artigo 52, inciso I, do RICMS/SP.
+44;20.040.00;3926.90.40;Chupetas e bicos para mamadeiras e para chupetas, de silicone;18%;69,01%;T;SEM REDUÇÃO FORNECEDOR;artigo 52, inciso I, do RICMS/SP.
+44;20.040.00;926.90.90;Chupetas e bicos para mamadeiras e para chupetas, de silicone;18%;69,01%;T;SEM REDUÇÃO FORNECEDOR;artigo 52, inciso I, do RICMS/SP.
+45;20.041.00;4202.1;Malas e maletas de toucador;18%;84,22%;T;SEM REDUÇÃO FORNECEDOR;artigo 52, inciso I, do RICMS/SP.
+46;20.042.00;4818.10.00;Papel higiênico - folha simples;18%;53,60%;Z;REDUÇÃO FORNECEDOR 18% (-) 33,33% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
+​47;​20.043.00;​4818.10.00;​Papel higiênico - folha dupla, tripla e quádrupla;18%;51,57%;Z;REDUÇÃO FORNECEDOR 18% (-) 33,33% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
+47;20.043.00;4818.10.00;Papel higiênico - folha dupla e tripla;18%;51,57%;Z;REDUÇÃO FORNECEDOR 18% (-) 33,33% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
+48;20.044.00;4818.20.00;Lenços (incluídos os de maquilagem) e toalhas de mão;18%;85,77%;T;REDUÇÃO FORNECEDOR 18% (-) 33,33% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
+49;20.045.00;4818.20.00;Papel toalha de uso institucional do tipo comercializado em rolos igual ou superior a 80 metros e do tipo comercializado em folhas intercaladas;18%;65,18%;T;SEM REDUÇÃO FORNECEDOR;artigo 52, inciso I, do RICMS/SP.
+50;20.046.00;4818.30.00;Toalhas e guardanapos de mesa;18%;76,81%;T;REDUÇÃO FORNECEDOR 18% (-) 33,33% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
+51;20.047.00;4818.90.90;Toalhas de cozinha (papel toalha de uso doméstico);18%;70,72%;T;REDUÇÃO FORNECEDOR 18% (-) 33,33% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
+52;20.048.00;9619.00.00;Fraldas, exceto os descritos no CEST 20.048.01;18%;40,77%;T;REDUÇÃO FORNECEDOR 18% (-) 33,33% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
+53;20.048.01;9619.00.00;Fraldas de fibras têxteis;18%;70,88%;T;REDUÇÃO FORNECEDOR 18% (-) 33,33% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
+54;20.049.00;9619.00.00;Tampões higiênicos;18%;48,08%;T;REDUÇÃO FORNECEDOR 18% (-) 33,33% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
+55;20.050.00;9619.00.00;Absorventes higiênicos externos;18%;48,08%;T;REDUÇÃO FORNECEDOR 18% (-) 33,33% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
+56;20.051.00;5601.21.90;Hastes flexíveis (uso não medicinal);18%;64,01%;M;REDUÇÃO FORNECEDOR 18% (-) 33,33% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
+57;20.052.00;5603.92.90;Sutiã descartável, assemelhados e papel para depilação;18%;126,90%;T;REDUÇÃO FORNECEDOR 18% (-) 33,33% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
+58;20.053.00;8203.20.90;Pinças para sobrancelhas;18%;72,88%;T;SEM REDUÇÃO FORNECEDOR;artigo 52, inciso I, do RICMS/SP.
+59;20.054.00;8214.10.00;Espátulas (artigos de cutelaria);18%;72,88%;T;SEM REDUÇÃO FORNECEDOR;artigo 52, inciso I, do RICMS/SP.
+60;20.055.00;8214.20.00;Utensílios e sortidos de utensílios de manicuros ou de pedicuros (incluídas as limas para unhas);18%;90,78%;T;SEM REDUÇÃO FORNECEDOR;artigo 52, inciso I, do RICMS/SP.
+61;20.056.00;9025.11.10;Termômetros, inclusive o digital;18%;75,41%;T;REDUÇÃO FORNECEDOR 18% (-) 33,33% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
+61;20.056.00;9025.19.90;Termômetros, inclusive o digital;18%;75,41%;T;REDUÇÃO FORNECEDOR 18% (-) 33,33% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
+62;20.057.00;9603.2;Escovas e pincéis de barba, escovas para cabelos, para cílios ou para unhas e outras escovas de toucador de pessoas, incluídas as que sejam partes de aparelhos, exceto escovas de dentes;18%;68,94%;T;REDUÇÃO FORNECEDOR 18% (-) 33,33% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
+63;20.058.00;9603.21.00;Escovas de dentes, incluídas as escovas para dentaduras;12%;51,99%;Z;REDUÇÃO FORNECEDOR 18% (-) 33,33% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
+64;20.059.00;9603.30.00;Pincéis para aplicação de produtos cosméticos;18%;60,49%;T;SEM REDUÇÃO FORNECEDOR;artigo 52, inciso I, do RICMS/SP.
+65;20.060.00;9605.00.00;Sortidos de viagem, para toucador de pessoas para costura ou para limpeza de calçado ou de roupas;18%;108,51%;T;SEM REDUÇÃO FORNECEDOR;artigo 52, inciso I, do RICMS/SP.
+66;20.061.00;9615;"Pentes, travessas para cabelo e artigos semelhantes; grampos (alfinetes) para cabelo; pinças (pinceguiches), onduladores, bobes (rolos) e artefatos semelhantes para penteados, e suas partes, exceto os classificados na posição 8516 e suas partes";18%;69,35%;T;SEM REDUÇÃO FORNECEDOR;artigo 52, inciso I, do RICMS/SP.
+67;20.062.00;9616.20.00;Borlas ou esponjas para pós ou para aplicação de outros cosméticos ou de produtos de toucador;18%;78,86%;T;SEM REDUÇÃO FORNECEDOR;artigo 52, inciso I, do RICMS/SP.
+​68;​20.063.00;​3923.30.90;​Mamadeiras;18%;83,30%;T;SEM REDUÇÃO FORNECEDOR;artigo 52, inciso I, do RICMS/SP.
+​68;​20.063.00;3924.10.00;​Mamadeiras;18%;83,30%;T;SEM REDUÇÃO FORNECEDOR;artigo 52, inciso I, do RICMS/SP.
+​68;​20.063.00;3924.90.00;​Mamadeiras;18%;83,30%;T;SEM REDUÇÃO FORNECEDOR;artigo 52, inciso I, do RICMS/SP.
+​68;​20.063.00;4014.90.90;​Mamadeiras;18%;83,30%;T;SEM REDUÇÃO FORNECEDOR;artigo 52, inciso I, do RICMS/SP.
+​68;​20.063.00;7013;​Mamadeiras;18%;83,30%;T;SEM REDUÇÃO FORNECEDOR;artigo 52, inciso I, do RICMS/SP.
+68;20.063.00;3923.30.00;Mamadeiras;18%;83,30%;T;SEM REDUÇÃO FORNECEDOR;artigo 52, inciso I, do RICMS/SP.
+68;​20.063.00;3924.90.00;Mamadeiras;18%;83,30%;T;SEM REDUÇÃO FORNECEDOR;artigo 52, inciso I, do RICMS/SP.
+68;​20.063.00;3924.10.00;Mamadeiras;18%;83,30%;T;SEM REDUÇÃO FORNECEDOR;artigo 52, inciso I, do RICMS/SP.
+68;20.063.00;4014.90.90;Mamadeiras;18%;83,30%;T;SEM REDUÇÃO FORNECEDOR;artigo 52, inciso I, do RICMS/SP.
+68;​20.063.00;7010.20.00;Mamadeiras;18%;83,30%;T;SEM REDUÇÃO FORNECEDOR;artigo 52, inciso I, do RICMS/SP.
+69;20.064.00;8212.10.20;Aparelhos e lâminas de barbear;18%;43,91%;M;SEM REDUÇÃO FORNECEDOR;artigo 52, inciso I, do RICMS/SP.
+69;20.064.00;8212.20.10;Aparelhos e lâminas de barbear;18%;43,91%;M;SEM REDUÇÃO FORNECEDOR;artigo 52, inciso I, do RICMS/SP.
 `;
 
 let baseDeDados = [];
@@ -400,7 +440,6 @@ let produtoSelecionado = null;
 // =================================================================================
 // PROCESSAMENTO DE DADOS
 // =================================================================================
-
 function limparTextoInvisivel(texto) {
     if (!texto) return "";
     return texto.replace(/[\u200B-\u200D\uFEFF]/g, '').trim();
@@ -438,6 +477,9 @@ function inicializar() {
         const ncm = limparTextoInvisivel(col[2]);
         const desc = limparTextoInvisivel(col[3]).replace(/^"|"$/g, '');
 
+        // LÊ A COLUNA PIS_COFINS (Indice 6)
+        const pisCofinsCode = col[6] || "T"; 
+
         if (mapaCest[cest]) {
             if (!mapaCest[cest].ncms.includes(ncm)) {
                 mapaCest[cest].ncms.push(ncm);
@@ -450,8 +492,9 @@ function inicializar() {
                 desc: desc,
                 icms: col[4] || "0%", 
                 mva: col[5] || "0%", 
-                red: col[6], 
-                leg: col[7]
+                pisCofins: pisCofinsCode, 
+                red: col[7], 
+                leg: col[8]
             };
         }
     }
@@ -468,16 +511,28 @@ function montarTabela(dados) {
         const ncmHtml = d.ncms.map(n => `<span class="ncm-tag">${n}</span>`).join('');
         let descCurta = d.desc.length > 120 ? d.desc.substring(0, 120) + "..." : d.desc;
 
+        let badgePis = "";
+        if(d.pisCofins === 'M') {
+            badgePis = '<span style="background:#e8f5e9; color:#2e7d32; padding:2px 5px; border-radius:3px; font-size:10px; border:1px solid #c8e6c9;">MONOFÁSICO</span>';
+        } else if(d.pisCofins === 'Z') {
+            badgePis = '<span style="background:#e3f2fd; color:#1565c0; padding:2px 5px; border-radius:3px; font-size:10px; border:1px solid #bbdefb;">ALIQ. ZERO</span>';
+        } else {
+            badgePis = '<span style="background:#ffebee; color:#c62828; padding:2px 5px; border-radius:3px; font-size:10px; border:1px solid #ffcdd2;">TRIBUTADO</span>';
+        }
+
         const tr = document.createElement('tr');
         tr.onclick = () => selecionarProduto(d, tr);
         tr.innerHTML = `
             <td><strong>${d.item}</strong></td>
             <td><span class="cest-badge">${d.cest}</span></td>
             <td><div class="ncm-wrapper">${ncmHtml}</div></td>
-            <td><div class="desc-text" title="${d.desc}">${descCurta}</div></td>
+            <td>
+                <div class="desc-text" title="${d.desc}">${descCurta}</div>
+                <div style="margin-top:4px;">${badgePis}</div>
+            </td>
             <td>${d.icms}</td>
             <td>${d.mva}</td>
-            <td><div class="leg-text">${d.red || '-'} <br> <span style="font-size:9px; color:#999;">${d.leg || ''}</span></div></td>
+            <td><div class="leg-text">${d.red || '-'}</div></td>
         `;
         body.appendChild(tr);
     });
@@ -497,7 +552,7 @@ function filtrar() {
 }
 
 // =================================================================================
-// LÓGICA DO SIMULADOR (Comparativo ST vs Crédito)
+// LÓGICA DO SIMULADOR (Comparativo ST vs Crédito + PIS/COFINS)
 // =================================================================================
 
 function parsePercent(valStr) {
@@ -524,14 +579,13 @@ function selecionarProduto(dados, elementoTr) {
     document.getElementById('simNomeProduto').innerText = `${dados.item} - ${dados.desc.substring(0, 60)}...`;
     document.getElementById('inMva').value = dados.mva;
     
-    // Regra Inteligente de Crédito
     let creditoSugerido = parsePercent(dados.icms);
     if (dados.red && dados.red.includes("Final 12%")) { 
         creditoSugerido = 12; 
     }
     
     document.getElementById('inCredito').value = creditoSugerido;
-    document.getElementById('inCustoTabela').value = "100,00"; // Valor de exemplo
+    document.getElementById('inCustoTabela').value = "100,00"; 
     
     calcular();
 }
@@ -553,15 +607,24 @@ function calcular() {
     const icmsSaidaPct = parsePercent(produtoSelecionado.icms);
     const mvaPct = parsePercent(produtoSelecionado.mva);
 
+    // DEFINE TAXA PIS/COFINS
+    let taxaPisCofins = 0;
+    if (produtoSelecionado.pisCofins === 'T') {
+        taxaPisCofins = 9.25; // 9.25% padrão se for Tributado
+    }
+    // Se for M ou Z, continua 0
+
     // 1. Custo NF (Base Comum)
     const custoNF = custoTabela * (1 - (descontoPct / 100));
 
-    // --- CENÁRIO A: REGIME NORMAL (Crédito/Débito) ---
+    // =================================================================
+    // CENÁRIO A: REGIME NORMAL
+    // =================================================================
     const valorCredito = custoNF * (creditoEntradaPct / 100);
     const custoLiquidoA = custoNF - valorCredito;
 
-    // Preço Venda A (Markup por dentro considerando o ICMS de Saída)
-    const taxaTotalA = (icmsSaidaPct + margem) / 100;
+    // Preço Venda A: Inclui ICMS Saída + PIS/COFINS + Margem
+    const taxaTotalA = (icmsSaidaPct + taxaPisCofins + margem) / 100;
     let divisorA = 1 - taxaTotalA;
     let precoVendaA = 0;
     
@@ -569,21 +632,38 @@ function calcular() {
         precoVendaA = custoLiquidoA / divisorA;
     }
     
-    const debitoVendaA = precoVendaA * (icmsSaidaPct / 100);
+    const debitoIcmsA = precoVendaA * (icmsSaidaPct / 100);
+    const debitoPisA  = precoVendaA * (taxaPisCofins / 100);
+    const debitoTotalA = debitoIcmsA + debitoPisA;
 
-    // --- CENÁRIO B: SUBSTITUIÇÃO TRIBUTÁRIA (ST) ---
-    // Base ST = CustoProduto * (1 + MVA%)
+    // PMZ A: Custo / (1 - Impostos). Sem Margem.
+    let divisorPmzA = 1 - ((icmsSaidaPct + taxaPisCofins) / 100);
+    let pmzA = 0;
+    if(divisorPmzA > 0.001) {
+        pmzA = custoLiquidoA / divisorPmzA;
+    }
+
+    // Lucro A
+    let lucroReaisA = precoVendaA - debitoTotalA - custoLiquidoA;
+    let lucroPercentualA = 0;
+    if(precoVendaA > 0) {
+        lucroPercentualA = (lucroReaisA / precoVendaA) * 100;
+    }
+
+    // =================================================================
+    // CENÁRIO B: ST
+    // =================================================================
     const baseST = custoNF * (1 + (mvaPct / 100));
     const icmsProprioEntrada = custoNF * (creditoEntradaPct / 100); 
     
     let valorST = (baseST * (icmsSaidaPct / 100)) - icmsProprioEntrada;
     if (valorST < 0) valorST = 0;
 
-    const custoTotalB = custoNF + valorST; // Custo de chegada (sem crédito na saída)
+    const custoTotalB = custoNF + valorST; 
 
-    // Preço Venda B (Markup sobre custo total, SEM débito de saída)
-    // Formula: CustoTotal / (1 - Margem)
-    const taxaTotalB = margem / 100;
+    // Preço B: CustoTotal / (1 - (Margem + PIS/COFINS))
+    // Mesmo no ST, se for Tributado no PIS/COFINS, paga sobre a venda.
+    const taxaTotalB = (margem + taxaPisCofins) / 100;
     let divisorB = 1 - taxaTotalB;
     let precoVendaB = 0;
     
@@ -591,31 +671,70 @@ function calcular() {
         precoVendaB = custoTotalB / divisorB;
     }
 
-    // ATUALIZAR DOM (CENÁRIO A)
+    const debitoPisB = precoVendaB * (taxaPisCofins / 100);
+
+    // PMZ B: CustoTotal / (1 - PIS/COFINS)
+    let divisorPmzB = 1 - (taxaPisCofins / 100);
+    let pmzB = 0;
+    if(divisorPmzB > 0.001) {
+        pmzB = custoTotalB / divisorPmzB;
+    }
+
+    // Lucro B
+    let lucroReaisB = precoVendaB - custoTotalB - debitoPisB;
+    let lucroPercentualB = 0;
+    if(precoVendaB > 0) {
+        lucroPercentualB = (lucroReaisB / precoVendaB) * 100;
+    }
+
+    // =================================================================
+    // ATUALIZAR INTERFACE
+    // =================================================================
+
+    // Cenário A
     document.getElementById('resANota').innerText = formatarMoeda(custoNF);
     document.getElementById('resACredito').innerText = formatarMoeda(valorCredito);
     document.getElementById('resACustoLiq').innerText = formatarMoeda(custoLiquidoA);
     document.getElementById('resAIcmsRate').innerText = icmsSaidaPct + "%";
-    document.getElementById('resADebito').innerText = formatarMoeda(debitoVendaA);
+    
+    // Mostra PIS se for > 0
+    document.getElementById('resAPisRate').innerText = taxaPisCofins + "%";
+    if(taxaPisCofins > 0) {
+        document.getElementById('resAPisRate').style.color = "#d35400";
+    } else {
+        document.getElementById('resAPisRate').style.color = "#27ae60"; // Verde se for zero
+    }
+
+    document.getElementById('resADebitoTotal').innerText = formatarMoeda(debitoTotalA);
     document.getElementById('resAPreco').innerText = formatarMoeda(precoVendaA);
     
-    // Logica Visual A
+    document.getElementById('resAPMZ').innerText = formatarMoeda(pmzA);
+    document.getElementById('resALucroR').innerText = formatarMoeda(lucroReaisA);
+    document.getElementById('resALucroP').innerText = lucroPercentualA.toFixed(2) + "%";
+
     document.getElementById('logicA').innerHTML = `
-        <span>Custo Líq. / (1 - (ICMS + Margem))</span>
-        <span>${formatarMoeda(custoLiquidoA)} / ${divisorA.toFixed(4)} <span class="calc-highlight">(Divisor)</span></span>
+        <span>Custo Líq. / (1 - (ICMS + PIS/COFINS + Margem))</span>
+        <span>${formatarMoeda(custoLiquidoA)} / ${divisorA.toFixed(4)}</span>
     `;
 
-    // ATUALIZAR DOM (CENÁRIO B)
+    // Cenário B
     document.getElementById('resBNota').innerText = formatarMoeda(custoNF);
     document.getElementById('resBBaseST').innerText = formatarMoeda(baseST);
     document.getElementById('resBValorST').innerText = formatarMoeda(valorST);
     document.getElementById('resBCustoTotal').innerText = formatarMoeda(custoTotalB);
+    
+    document.getElementById('resBPisRate').innerText = taxaPisCofins + "%";
+    if(taxaPisCofins > 0) document.getElementById('resBPisRate').style.color = "#d35400";
+
     document.getElementById('resBPreco').innerText = formatarMoeda(precoVendaB);
 
-    // Logica Visual B
+    document.getElementById('resBPMZ').innerText = formatarMoeda(pmzB);
+    document.getElementById('resBLucroR').innerText = formatarMoeda(lucroReaisB);
+    document.getElementById('resBLucroP').innerText = lucroPercentualB.toFixed(2) + "%";
+
     document.getElementById('logicB').innerHTML = `
-        <span>Custo Total / (1 - Margem)</span>
-        <span>${formatarMoeda(custoTotalB)} / ${divisorB.toFixed(2)} <span class="calc-highlight">(Divisor)</span></span>
+        <span>Custo Total / (1 - (Margem + PIS/COFINS))</span>
+        <span>${formatarMoeda(custoTotalB)} / ${divisorB.toFixed(2)}</span>
     `;
 }
 
@@ -623,9 +742,6 @@ function formatarMoeda(valor) {
     if(isNaN(valor)) return "R$ 0,00";
     return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 }
-
-// Inicializa sem chamar montarTabela, pois aguarda login
-// window.onload = inicializar; // Removido para usar no Login
 
 </script>
 </body>
