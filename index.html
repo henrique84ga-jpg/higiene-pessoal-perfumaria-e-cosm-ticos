@@ -1,1 +1,618 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema Tributário - Login Seguro</title>
+    <style>
+        :root { --primary: #2c3e50; --secondary: #2980b9; --accent: #27ae60; --st-color: #8e44ad; --bg: #f4f6f7; --panel-bg: #ffffff; --pmz-color: #e67e22; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg); padding: 0; margin: 0; color: #333; }
+        #login-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%); display: flex; justify-content: center; align-items: center; z-index: 9999; }
+        .login-box { background: white; padding: 40px; border-radius: 10px; box-shadow: 0 15px 30px rgba(0,0,0,0.2); width: 100%; max-width: 350px; text-align: center; }
+        .login-box h2 { margin-top: 0; color: #2c3e50; margin-bottom: 20px; }
+        .login-input { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 5px; font-size: 16px; box-sizing: border-box; }
+        .btn-login { width: 100%; padding: 12px; background-color: var(--secondary); color: white; border: none; border-radius: 5px; font-size: 16px; font-weight: bold; cursor: pointer; transition: background 0.2s; }
+        .btn-login:hover { background-color: #1a5276; }
+        .error-msg { color: red; font-size: 13px; margin-top: 10px; display: none; }
+        #app-content { display: none; padding: 20px; max-width: 1600px; margin: 0 auto; }
+        .simulator-panel { background: var(--panel-bg); padding: 20px; border-radius: 8px; box-shadow: 0 4px 25px rgba(0,0,0,0.1); margin-bottom: 25px; border-top: 5px solid var(--accent); display: none; animation: slideDown 0.3s ease-out; position: sticky; top: 10px; z-index: 100; }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-15px); } to { opacity: 1; transform: translateY(0); } }
+        .sim-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+        .sim-header h2 { margin: 0; color: var(--primary); font-size: 18px; text-transform: uppercase; font-weight: 700; }
+        .sim-product-name { color: var(--secondary); font-weight: bold; font-size: 14px; margin-left: 10px; }
+        .btn-close { border: none; background: none; cursor: pointer; font-size: 28px; color: #999; line-height: 1; }
+        .sim-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 15px; align-items: end; margin-bottom: 20px; }
+        .input-group label { display: block; font-size: 11px; color: #555; margin-bottom: 5px; font-weight: 700; text-transform: uppercase; }
+        .input-group input { width: 100%; padding: 10px; border: 1px solid #ced4da; border-radius: 4px; font-weight: bold; color: #333; font-size: 15px; box-sizing: border-box; }
+        #inCustoTabela { border-left: 3px solid #7f8c8d; }
+        #inDesconto { border-left: 3px solid #e67e22; color: #d35400; }
+        #inMva { background-color: #f3e5f5; color: var(--st-color); border: 1px solid #e1bee7; cursor: default; }
+        .results-container { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; border-top: 1px solid #eee; padding-top: 15px; }
+        .scenario-box { padding: 15px; border-radius: 6px; position: relative; display: flex; flex-direction: column; }
+        .scenario-a { background-color: #f1f8e9; border: 1px solid #c5e1a5; } 
+        .scenario-b { background-color: #f3e5f5; border: 1px solid #e1bee7; }
+        .scenario-title { font-size: 14px; font-weight: bold; margin-bottom: 15px; text-transform: uppercase; text-align: center; border-bottom: 1px solid rgba(0,0,0,0.1); padding-bottom: 5px; }
+        .scenario-a .scenario-title { color: #2e7d32; }
+        .scenario-b .scenario-title { color: var(--st-color); }
+        .res-line { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 13px; }
+        .res-destaque { background-color: rgba(255,255,255,0.6); padding: 8px; border-radius: 4px; font-weight: bold; margin-top: 10px; border: 1px solid rgba(0,0,0,0.1); font-size: 15px; }
+        .price-tag { font-size: 20px; color: #2c3e50; display: block; text-align: right; }
+        .calc-logic { font-family: 'Consolas', monospace; font-size: 10px; color: #555; margin-top: 5px; text-align: right; padding: 4px; border-top: 1px dotted #ccc; background: rgba(255,255,255,0.4); }
+        .calc-logic span { display: block; }
+        .calc-highlight { color: #d35400; font-weight: bold; }
+        .profit-section { margin-top: 10px; border-top: 1px dashed #ccc; padding-top: 8px; background: rgba(255,255,255,0.3); border-radius: 4px; padding: 8px; }
+        .pmz-tag { color: var(--pmz-color); font-weight: bold; }
+        .lucro-tag { color: var(--accent); font-weight: bold; }
+        .search-area { margin-bottom: 15px; position: relative; }
+        .search-box { width: 100%; padding: 15px; padding-left: 45px; border: 1px solid #ccc; border-radius: 6px; font-size: 16px; box-sizing: border-box; }
+        .search-icon { position: absolute; left: 15px; top: 18px; color: #999; font-size: 18px; }
+        .table-container { overflow-x: auto; background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border: 1px solid #e0e0e0; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        th { background-color: var(--primary); color: white; padding: 14px 12px; text-align: left; position: sticky; top: 0; z-index: 10; white-space: nowrap; font-weight: 600; }
+        td { padding: 12px; border-bottom: 1px solid #eee; vertical-align: top; }
+        tr:hover { background-color: #f1f8ff; cursor: pointer; }
+        tr.selected { background-color: #e8f5e9; border-left: 5px solid var(--accent); }
+        .cest-badge { background-color: #eceff1; color: #455a64; padding: 4px 8px; border-radius: 4px; font-weight: bold; font-family: monospace; border: 1px solid #cfd8dc; }
+        .ncm-tag { background-color: #e3f2fd; color: #1565c0; padding: 3px 6px; border-radius: 4px; font-size: 11px; font-weight: bold; margin-right: 4px; margin-bottom: 4px; border: 1px solid #90caf9; display: inline-block; }
+        .ncm-wrapper { display: flex; flex-wrap: wrap; max-width: 350px; }
+        .desc-text { max-width: 450px; line-height: 1.5; color: #444; }
+        .leg-text { font-size: 11px; color: #555; background: #fff8e1; padding: 5px; border-radius: 4px; border: 1px solid #ffe0b2; display: inline-block; }
+        @media (max-width: 900px) {
+            .results-container { grid-template-columns: 1fr; }
+            .container { padding: 10px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="login-screen">
+        <div class="login-box">
+            <h2>Acesso Restrito</h2>
+            <input type="text" id="user" class="login-input" placeholder="Usuário">
+            <input type="password" id="pass" class="login-input" placeholder="Senha" onkeyup="if(event.key === 'Enter') fazerLogin()">
+            <button class="btn-login" onclick="fazerLogin()">ENTRAR</button>
+            <div id="loginError" class="error-msg">Usuário ou senha incorretos.</div>
+            <div style="margin-top: 15px; font-size: 11px; color: #888;">Sistema Protegido</div>
+        </div>
+    </div>
+
+    <div id="app-content">
+        <div id="simulador" class="simulator-panel">
+            <div class="sim-header">
+                <div>
+                    <h2>Simulador: Crédito vs ST</h2>
+                    <span id="simNomeProduto" class="sim-product-name">...</span>
+                </div>
+                <button onclick="fecharSimulador()" class="btn-close">&times;</button>
+            </div>
+            <div class="sim-grid">
+                <div class="input-group">
+                    <label>1. Preço Tabela (R$)</label>
+                    <input type="text" id="inCustoTabela" placeholder="0,00" onkeyup="calcular()">
+                </div>
+                <div class="input-group">
+                    <label style="color: #d35400;">Negociação (%)</label>
+                    <input type="number" id="inDesconto" placeholder="0" onkeyup="calcular()" step="0.5">
+                </div>
+                <div class="input-group">
+                    <label>MVA/IVA (%)</label>
+                    <input type="text" id="inMva" readonly>
+                </div>
+                <div class="input-group">
+                    <label>Crédito Entrada (%)</label>
+                    <input type="number" id="inCredito" onkeyup="calcular()" step="0.01">
+                </div>
+                <div class="input-group">
+                    <label>Margem Alvo (%)</label>
+                    <input type="number" id="inMargem" value="40" onkeyup="calcular()">
+                </div>
+            </div>
+            <div class="results-container">
+                <div class="scenario-box scenario-a">
+                    <div class="scenario-title">Cenário 1: Regime Normal (Crédito/Débito)</div>
+                    <div class="res-line"><span>Custo Nota (c/ Desc):</span> <strong id="resANota">R$ 0,00</strong></div>
+                    <div class="res-line"><span style="color:#2e7d32">(-) Crédito Entrada:</span> <span id="resACredito">R$ 0,00</span></div>
+                    <div class="res-line" style="border-bottom:1px dashed #ccc; padding-bottom:5px;"><span>= Custo Líquido:</span> <strong id="resACustoLiq">R$ 0,00</strong></div>
+                    <div class="res-line" style="margin-top:10px;"><span>Alíquota ICMS Saída:</span> <strong id="resAIcmsRate" style="color:#d32f2f">0%</strong></div>
+                    <div class="res-line"><span>PIS/COFINS (Saída):</span> <strong id="resAPisRate" style="color:#d32f2f">0%</strong></div>
+                    <div class="res-line"><span>(-) Impostos na Venda:</span> <span id="resADebitoTotal" style="color:#d32f2f">R$ 0,00</span></div>
+                    <div class="res-destaque"><span>Preço Sugerido:</span><span id="resAPreco" class="price-tag">R$ 0,00</span></div>
+                    <div class="profit-section">
+                        <div class="res-line"><span>PMZ (Margem Zero):</span> <strong id="resAPMZ" class="pmz-tag">R$ 0,00</strong></div>
+                        <div class="res-line"><span>Lucro Líquido (R$):</span> <strong id="resALucroR" class="lucro-tag">R$ 0,00</strong></div>
+                        <div class="res-line"><span>Lucro Líquido (%):</span> <strong id="resALucroP" class="lucro-tag">0%</strong></div>
+                    </div>
+                    <div class="calc-logic" id="logicA"></div>
+                </div>
+                <div class="scenario-box scenario-b">
+                    <div class="scenario-title">Cenário 2: Com Substituição Tributária (ST)</div>
+                    <div class="res-line"><span>Custo Nota (Produto):</span> <strong id="resBNota">R$ 0,00</strong></div>
+                    <div class="res-line"><span>Base de Cálculo ST:</span> <span id="resBBaseST">R$ 0,00</span></div>
+                    <div class="res-line" style="color:#8e44ad"><strong>(+) ST a Pagar na NF:</strong> <strong id="resBValorST">R$ 0,00</strong></div>
+                    <div class="res-line" style="border-bottom:1px dashed #ccc; padding-bottom:5px;"><span>= Custo Total (Chegada):</span> <strong id="resBCustoTotal">R$ 0,00</strong></div>
+                    <div class="res-line" style="margin-top:10px;"><span>ICMS Saída:</span> <strong style="color:#888;">0% (Retido)</strong></div>
+                    <div class="res-line"><span>PIS/COFINS (Saída):</span> <strong id="resBPisRate" style="color:#888;">0%</strong></div>
+                    <div class="res-destaque"><span>Preço Sugerido (ST):</span><span id="resBPreco" class="price-tag">R$ 0,00</span></div>
+                    <div class="profit-section">
+                        <div class="res-line"><span>PMZ (Margem Zero):</span> <strong id="resBPMZ" class="pmz-tag">R$ 0,00</strong></div>
+                        <div class="res-line"><span>Lucro Líquido (R$):</span> <strong id="resBLucroR" class="lucro-tag">R$ 0,00</strong></div>
+                        <div class="res-line"><span>Lucro Líquido (%):</span> <strong id="resBLucroP" class="lucro-tag">0%</strong></div>
+                    </div>
+                    <div class="calc-logic" id="logicB"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="search-area">
+            <h1 style="color: #2c3e50; text-align: center; margin-bottom: 20px;">Simulador Fiscal Integrado</h1>
+            <span class="search-icon">🔍</span>
+            <input type="text" id="searchInput" class="search-box" onkeyup="filtrar()" placeholder="Digite NCM, CEST, Descrição ou Item...">
+            <div id="status" style="text-align: right; font-size: 12px; color: #888; margin-top: 5px;">Carregando base de dados...</div>
+        </div>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th width="5%">Item</th>
+                        <th width="10%">CEST</th>
+                        <th width="20%">NCMs</th>
+                        <th width="30%">Descrição</th>
+                        <th width="8%">Saída</th>
+                        <th width="8%">MVA (ST)</th>
+                        <th width="19%">Regra / Legislação</th>
+                    </tr>
+                </thead>
+                <tbody id="tabelaBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+<script>
+// =================================================================================
+// SEGURANÇA E LOGIN (HASH SHA-256 - API NATIVA)
+// =================================================================================
+const CREDENCIAIS = {
+    "henrique": "28e4414030638531d9990b7933939523d49488426002f23243c333f234771501",
+    "rodolfo": "23d944e99f64c6776104f6696956272370783f98285559c5d15a5f113a1758c0",
+    "cintra": "378076610738e4a956108154944f22c8375176b509355793086438090726692a"
+};
+
+// --- AQUI ESTÁ A CORREÇÃO PRINCIPAL ---
+// Usamos a API 'crypto.subtle' que é nativa do navegador em sites HTTPS (como GitHub Pages).
+// Isso garante que o hash gerado seja SEMPRE igual ao padrão mundial.
+async function hashSenha(senha) {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(senha);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+async function fazerLogin() {
+    const userInput = document.getElementById('user').value.toLowerCase().trim();
+    const passInput = document.getElementById('pass').value.trim(); // Remove espaços
+    const errorMsg = document.getElementById('loginError');
+
+    if (!CREDENCIAIS[userInput]) {
+        errorMsg.style.display = 'block';
+        return;
+    }
+
+    try {
+        const hashGerado = await hashSenha(passInput);
+        
+        if (hashGerado === CREDENCIAIS[userInput]) {
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('app-content').style.display = 'block';
+            inicializar(); 
+        } else {
+            // Removi o alerta de diagnóstico para limpar a tela
+            errorMsg.innerText = "Usuário ou senha incorretos.";
+            errorMsg.style.display = 'block';
+        }
+    } catch (e) {
+        console.error("Erro no login:", e);
+        errorMsg.innerText = "Erro no sistema de segurança.";
+        errorMsg.style.display = 'block';
+    }
+}
+
+// =================================================================================
+// DADOS CSV 
+// =================================================================================
+const csvDados = `ITEM;CEST;NCM/SH;DESCRIÇÃO;ICMS SAIDA VAREJO;MVA(IVA);PIS_COFINS;REDUÇÃO FORNECEDOR ;LEGISLAÇÃO
+1;20.001.00;1211.90.90;Henna (embalagens de conteúdo inferior ou igual a 200 g);18%;57,51%;T;SEM REDUÇÃO FORNECEDOR;artigo 52, inciso I, do RICMS/SP.
+2;20.002.00;2712.10.00;Vaselina;18%;110,04%;T;SEM REDUÇÃO FORNECEDOR;artigo 52, inciso I, do RICMS/SP.
+3;20.003.00;2814.20.00;Amoníaco em solução aquosa (amônia);18%;115,15%;T;SEM REDUÇÃO FORNECEDOR;artigo 52, inciso I, do RICMS/SP.
+4;20.004.00;2847.00.00;Peróxido de hidrogênio, em embalagens de conteúdo inferior ou igual a 500 ml;18%;57,94%;T;SEM REDUÇÃO FORNECEDOR;artigo 52, inciso I, do RICMS/SP.
+5;20.005.00;3006.70.00;Lubrificação íntima;18%;66,17%;M;SEM REDUÇÃO FORNECEDOR;artigo 52, inciso I, do RICMS/SP.
+6;20.006.00;3301;"Óleos essenciais (desterpenados ou não), incluídos os chamados “concretos” ou “absolutos”; resinoides; oleorresinas de extração; soluções concentradas de óleos essenciais em gorduras, em óleos fixos, em ceras ou em matérias análogas, obtidas por tratamento de flores através de substâncias gordas ou por maceração; subprodutos terpênicos residuais da desterpenação dos óleos essenciais; águas destiladas aromáticas e soluções aquosas de óleos essenciais, em embalagens de conteúdo inferior ou igual a 500 ml";18%;61,91%;M;SEM REDUÇÃO FORNECEDOR;artigo 52, inciso I, do RICMS/SP.
+7;20.007.00;3303.00.10;Perfumes (extratos);25%;70,72%;M;REDUÇÃO FORNECEDOR 25% (-) 52% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
+8;20.008.00;3303.00.20;Águas-de-colônia;25%;86,22%;M;REDUÇÃO FORNECEDOR 25% (-) 52% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
+9;20.009.00;3304.10.00;Produtos de maquilagem para os lábios;25%;75,15%;M;REDUÇÃO FORNECEDOR 25% (-) 52% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
+10;20.010.00;3304.20.10;Sombra, delineador, lápis para sobrancelhas e rímel;25%;76,22%;M;REDUÇÃO FORNECEDOR 25% (-) 52% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
+11;20.011.00;3304.20.90;Outros produtos de maquilagem para os olhos;25%;83,28%;M;REDUÇÃO FORNECEDOR 25% (-) 52% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
+12;20.012.00;3304.30.00;Preparações para manicuros e pedicuros, incluindo removedores de esmalte à base de acetona;25%;62,43%;M;REDUÇÃO FORNECEDOR 25% (-) 52% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
+13;20.013.00;3304.91.00;Pós, incluídos os compactos;25%;55,77%;M;REDUÇÃO FORNECEDOR 25% (-) 52% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
+14;20.014.00;3304.99.10;Cremes de beleza, cremes nutritivos e loções tônicas;25%;66,63%;M;REDUÇÃO FORNECEDOR 25% (-) 52% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
+15;20.015.00;3304.99.90;Outros produtos de beleza ou de maquilagem preparados e preparações para conservação ou cuidados da pele, exceto as preparações solares e antissolares;25%;70,30%;M;REDUÇÃO FORNECEDOR 25% (-) 52% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
+16;20.016.00;3304.99.90;Preparações solares e antissolares;18%;42,40%;M;SEM REDUÇÃO FORNECEDOR;artigo 52, inciso I, do RICMS/SP.
+17;20.017.00;3305.10.00;Xampus para o cabelo;18%;42,66%;M;REDUÇÃO FORNECEDOR 18% (-) 33,33% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
+18;20.018.00;3305.20.00;Preparações para ondulação ou alisamento, permanentes, dos cabelos;18%;62,08%;M;REDUÇÃO FORNECEDOR 18% (-) 33,33% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
+19;20.019.00;3305.30.00;Laquês para o cabelo;25%;58,03%;M;REDUÇÃO FORNECEDOR 25% (-) 52% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
+20;20.020.00;3305.90.00;Outras preparações capilares, incluindo máscaras e Finallizadores;25%;70,24%;M;REDUÇÃO FORNECEDOR 25% (-) 52% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
+21;20.021.00;3305.90.00;Condicionadores;25%;59,30%;M;REDUÇÃO FORNECEDOR 25% (-) 52% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
+22;20.022.00;3305.90.00;Tintura para o cabelo;25%;45,04%;M;REDUÇÃO FORNECEDOR 25% (-) 52% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
+23;20.023.00;3306.10.00;Dentifrícios;12%;36,90%;Z;A alíquota interna de 12%, está prevista no artigo 54, inciso XVIII, do RICMS/SP.;
+24;20.024.00;3306.20.00;Fios utilizados para limpar os espaços interdentais (fios dentais);18%;73,44%;M;REDUÇÃO FORNECEDOR 18% (-) 33,33% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
+25;20.025.00;3306.90.00;Outras preparações para higiene bucal ou dentária;18%;41,10%;M;SEM REDUÇÃO FORNECEDOR;artigo 52, inciso I, do RICMS/SP.
+26;20.026.00;3307.10.00;Preparações para barbear (antes, durante ou após);25%;64,80%;M;REDUÇÃO FORNECEDOR 25% (-) 52% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
+27;20.027.00;3307.20.10;Desodorantes (desodorizantes) corporais líquidos, exceto os classificados no CEST 20.027.01;18%;45,17%;M;REDUÇÃO FORNECEDOR 18% (-) 33,33% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
+28;20.027.01;3307.20.10;Loções e óleos desodorantes hidratantes líquidos;18%;41,72%;M;REDUÇÃO FORNECEDOR 18% (-) 33,33% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
+29;20.028.00;3307.20.10;Antiperspirantes líquidos;18%;37,30%;M;REDUÇÃO FORNECEDOR 18% (-) 33,33% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
+30;20.029.00;3307.20.90;Outros desodorantes (desodorizantes) corporais, exceto os classificados no CEST 20.029.01;18%;59,72%;M;REDUÇÃO FORNECEDOR 18% (-) 33,33% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
+31;20.029.01;3307.20.90;Outras loções e óleos desodorantes hidratantes;18%;43,34%;M;REDUÇÃO FORNECEDOR 18% (-) 33,33% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
+32;20.030.00;3307.20.90;Outros antiperspirantes;18%;56,76%;M;REDUÇÃO FORNECEDOR 18% (-) 33,33% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
+33;20.031.00;3307.30.00;Sais perfumados e outras preparações para banhos;25%;74,35%;M;REDUÇÃO FORNECEDOR 25% (-) 52% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
+34;20.032.00;3307.90.00;Outros produtos de perfumaria preparados;25%;50,62%;M;REDUÇÃO FORNECEDOR 25% (-) 52% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
+35;20.032.01;3307.90.00;Outros produtos de toucador preparados;25%;60,93%;M;REDUÇÃO FORNECEDOR 25% (-) 52% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
+36;20.033.00;3307.90.00;Soluções para lentes de contato ou para olhos artificiais;18%;65,93%;M;REDUÇÃO FORNECEDOR 18% (-) 33,33% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
+37;20.034.00;3401.11.90;Sabões de toucador em barras, pedaços ou figuras moldados, exceto CEST 20.034.01;18%;37,19%;M;REDUÇÃO FORNECEDOR 18% (-) 33,33% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
+38;20.034.01;3401.11.90;Lenços umedecidos;18%;53,00%;M;REDUÇÃO FORNECEDOR 18% (-) 33,33% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
+39;20.035.00;3401.19.00;Outros sabões, produtos e preparações, em barras, pedaços ou figuras moldados;18%;64,83%;M;REDUÇÃO FORNECEDOR 18% (-) 33,33% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
+40;20.036.00;3401.20.10;Sabões de toucador sob outras formas;18%;51,55%;M;REDUÇÃO FORNECEDOR 18% (-) 33,33% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
+41;20.037.00;3401.30.00;Produtos e preparações orgânicos tensoativos para lavagem da pele, na forma de líquido ou de creme, acondicionados para venda a retalho, mesmo contendo sabão;18%;46,08%;M;REDUÇÃO FORNECEDOR 18% (-) 33,33% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
+42;20.038.00;4014.90.10;Bolsa para gelo ou para água quente;18%;71,91%;T;SEM REDUÇÃO FORNECEDOR;artigo 52, inciso I, do RICMS/SP.
+43;20.039.00;4014.90.90;Chupetas e bicos para mamadeiras e para chupetas, de borracha;18%;94,55%;T;SEM REDUÇÃO FORNECEDOR;artigo 52, inciso I, do RICMS/SP.
+44;20.040.00;3924.90.00;Chupetas e bicos para mamadeiras e para chupetas, de silicone;18%;69,01%;T;SEM REDUÇÃO FORNECEDOR;artigo 52, inciso I, do RICMS/SP.
+44;20.040.00;3926.90.40;Chupetas e bicos para mamadeiras e para chupetas, de silicone;18%;69,01%;T;SEM REDUÇÃO FORNECEDOR;artigo 52, inciso I, do RICMS/SP.
+44;20.040.00;926.90.90;Chupetas e bicos para mamadeiras e para chupetas, de silicone;18%;69,01%;T;SEM REDUÇÃO FORNECEDOR;artigo 52, inciso I, do RICMS/SP.
+45;20.041.00;4202.1;Malas e maletas de toucador;18%;84,22%;T;SEM REDUÇÃO FORNECEDOR;artigo 52, inciso I, do RICMS/SP.
+46;20.042.00;4818.10.00;Papel higiênico - folha simples;18%;53,60%;Z;REDUÇÃO FORNECEDOR 18% (-) 33,33% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
+47;20.043.00;4818.10.00;Papel higiênico - folha dupla, tripla e quádrupla;18%;51,57%;Z;REDUÇÃO FORNECEDOR 18% (-) 33,33% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
+47;20.043.00;4818.10.00;Papel higiênico - folha dupla e tripla;18%;51,57%;Z;REDUÇÃO FORNECEDOR 18% (-) 33,33% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
+48;20.044.00;4818.20.00;Lenços (incluídos os de maquilagem) e toalhas de mão;18%;85,77%;T;REDUÇÃO FORNECEDOR 18% (-) 33,33% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
+49;20.045.00;4818.20.00;Papel toalha de uso institucional do tipo comercializado em rolos igual ou superior a 80 metros e do tipo comercializado em folhas intercaladas;18%;65,18%;T;SEM REDUÇÃO FORNECEDOR;artigo 52, inciso I, do RICMS/SP.
+50;20.046.00;4818.30.00;Toalhas e guardanapos de mesa;18%;76,81%;T;REDUÇÃO FORNECEDOR 18% (-) 33,33% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
+51;20.047.00;4818.90.90;Toalhas de cozinha (papel toalha de uso doméstico);18%;70,72%;T;REDUÇÃO FORNECEDOR 18% (-) 33,33% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
+52;20.048.00;9619.00.00;Fraldas, exceto os descritos no CEST 20.048.01;18%;40,77%;T;REDUÇÃO FORNECEDOR 18% (-) 33,33% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
+53;20.048.01;9619.00.00;Fraldas de fibras têxteis;18%;70,88%;T;REDUÇÃO FORNECEDOR 18% (-) 33,33% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
+54;20.049.00;9619.00.00;Tampões higiênicos;18%;48,08%;T;REDUÇÃO FORNECEDOR 18% (-) 33,33% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
+55;20.050.00;9619.00.00;Absorventes higiênicos externos;18%;48,08%;T;REDUÇÃO FORNECEDOR 18% (-) 33,33% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
+56;20.051.00;5601.21.90;Hastes flexíveis (uso não medicinal);18%;64,01%;M;REDUÇÃO FORNECEDOR 18% (-) 33,33% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
+57;20.052.00;5603.92.90;Sutiã descartável, assemelhados e papel para depilação;18%;126,90%;T;REDUÇÃO FORNECEDOR 18% (-) 33,33% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
+58;20.053.00;8203.20.90;Pinças para sobrancelhas;18%;72,88%;T;SEM REDUÇÃO FORNECEDOR;artigo 52, inciso I, do RICMS/SP.
+59;20.054.00;8214.10.00;Espátulas (artigos de cutelaria);18%;72,88%;T;SEM REDUÇÃO FORNECEDOR;artigo 52, inciso I, do RICMS/SP.
+60;20.055.00;8214.20.00;Utensílios e sortidos de utensílios de manicuros ou de pedicuros (incluídas as limas para unhas);18%;90,78%;T;SEM REDUÇÃO FORNECEDOR;artigo 52, inciso I, do RICMS/SP.
+61;20.056.00;9025.11.10;Termômetros, inclusive o digital;18%;75,41%;T;REDUÇÃO FORNECEDOR 18% (-) 33,33% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
+61;20.056.00;9025.19.90;Termômetros, inclusive o digital;18%;75,41%;T;REDUÇÃO FORNECEDOR 18% (-) 33,33% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
+62;20.057.00;9603.2;Escovas e pincéis de barba, escovas para cabelos, para cílios ou para unhas e outras escovas de toucador de pessoas, incluídas as que sejam partes de aparelhos, exceto escovas de dentes;18%;68,94%;T;REDUÇÃO FORNECEDOR 18% (-) 33,33% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
+63;20.058.00;9603.21.00;Escovas de dentes, incluídas as escovas para dentaduras;12%;51,99%;Z;REDUÇÃO FORNECEDOR 18% (-) 33,33% Final 12% de Credito;artigo 34 do Anexo II do RICMS/SP
+64;20.059.00;9603.30.00;Pincéis para aplicação de produtos cosméticos;18%;60,49%;T;SEM REDUÇÃO FORNECEDOR;artigo 52, inciso I, do RICMS/SP.
+65;20.060.00;9605.00.00;Sortidos de viagem, para toucador de pessoas para costura ou para limpeza de calçado ou de roupas;18%;108,51%;T;SEM REDUÇÃO FORNECEDOR;artigo 52, inciso I, do RICMS/SP.
+66;20.061.00;9615;"Pentes, travessas para cabelo e artigos semelhantes; grampos (alfinetes) para cabelo; pinças (pinceguiches), onduladores, bobes (rolos) e artefatos semelhantes para penteados, e suas partes, exceto os classificados na posição 8516 e suas partes";18%;69,35%;T;SEM REDUÇÃO FORNECEDOR;artigo 52, inciso I, do RICMS/SP.
+67;20.062.00;9616.20.00;Borlas ou esponjas para pós ou para aplicação de outros cosméticos ou de produtos de toucador;18%;78,86%;T;SEM REDUÇÃO FORNECEDOR;artigo 52, inciso I, do RICMS/SP.
+68;20.063.00;3923.30.90;Mamadeiras;18%;83,30%;T;SEM REDUÇÃO FORNECEDOR;artigo 52, inciso I, do RICMS/SP.
+68;20.063.00;3924.10.00;Mamadeiras;18%;83,30%;T;SEM REDUÇÃO FORNECEDOR;artigo 52, inciso I, do RICMS/SP.
+68;20.063.00;3924.90.00;Mamadeiras;18%;83,30%;T;SEM REDUÇÃO FORNECEDOR;artigo 52, inciso I, do RICMS/SP.
+68;20.063.00;4014.90.90;Mamadeiras;18%;83,30%;T;SEM REDUÇÃO FORNECEDOR;artigo 52, inciso I, do RICMS/SP.
+68;20.063.00;7013;Mamadeiras;18%;83,30%;T;SEM REDUÇÃO FORNECEDOR;artigo 52, inciso I, do RICMS/SP.
+68;20.063.00;3923.30.00;Mamadeiras;18%;83,30%;T;SEM REDUÇÃO FORNECEDOR;artigo 52, inciso I, do RICMS/SP.
+68;20.063.00;3924.90.00;Mamadeiras;18%;83,30%;T;SEM REDUÇÃO FORNECEDOR;artigo 52, inciso I, do RICMS/SP.
+68;20.063.00;3924.10.00;Mamadeiras;18%;83,30%;T;SEM REDUÇÃO FORNECEDOR;artigo 52, inciso I, do RICMS/SP.
+68;20.063.00;4014.90.90;Mamadeiras;18%;83,30%;T;SEM REDUÇÃO FORNECEDOR;artigo 52, inciso I, do RICMS/SP.
+68;20.063.00;7010.20.00;Mamadeiras;18%;83,30%;T;SEM REDUÇÃO FORNECEDOR;artigo 52, inciso I, do RICMS/SP.
+69;20.064.00;8212.10.20;Aparelhos e lâminas de barbear;18%;43,91%;M;SEM REDUÇÃO FORNECEDOR;artigo 52, inciso I, do RICMS/SP.
+69;20.064.00;8212.20.10;Aparelhos e lâminas de barbear;18%;43,91%;M;SEM REDUÇÃO FORNECEDOR;artigo 52, inciso I, do RICMS/SP.`;
+
+let baseDeDados = [];
+let produtoSelecionado = null;
+
+// =================================================================================
+// PROCESSAMENTO DE DADOS
+// =================================================================================
+function limparTextoInvisivel(texto) {
+    if (!texto) return "";
+    return texto.replace(/[\u200B-\u200D\uFEFF]/g, '').trim();
+}
+
+function lerLinhaCSV(linha) {
+    let colunas = [];
+    let textoAtual = '';
+    let dentroDasAspas = false;
+    const linhaLimpa = limparTextoInvisivel(linha);
+
+    for (let i = 0; i < linhaLimpa.length; i++) {
+        const char = linhaLimpa[i];
+        if (char === '"') { dentroDasAspas = !dentroDasAspas; } 
+        else if (char === ';' && !dentroDasAspas) { colunas.push(textoAtual); textoAtual = ''; } 
+        else { textoAtual += char; }
+    }
+    colunas.push(textoAtual);
+    return colunas;
+}
+
+function inicializar() {
+    const linhas = csvDados.split('\n');
+    let mapaCest = {};
+
+    for (let i = 1; i < linhas.length; i++) {
+        let linha = linhas[i];
+        if(!linha || linha.trim() === "") continue;
+
+        const col = lerLinhaCSV(linha);
+        if (col.length < 5) continue;
+
+        const item = limparTextoInvisivel(col[0]);
+        const cest = limparTextoInvisivel(col[1]);
+        const ncm = limparTextoInvisivel(col[2]);
+        const desc = limparTextoInvisivel(col[3]).replace(/^"|"$/g, '');
+
+        const pisCofinsCode = col[6] || "T"; 
+
+        if (mapaCest[cest]) {
+            if (!mapaCest[cest].ncms.includes(ncm)) {
+                mapaCest[cest].ncms.push(ncm);
+            }
+        } else {
+            mapaCest[cest] = {
+                item: item, 
+                cest: cest, 
+                ncms: [ncm], 
+                desc: desc,
+                icms: col[4] || "0%", 
+                mva: col[5] || "0%", 
+                pisCofins: pisCofinsCode, 
+                red: col[7], 
+                leg: col[8]
+            };
+        }
+    }
+    baseDeDados = Object.values(mapaCest);
+    montarTabela(baseDeDados);
+}
+
+function montarTabela(dados) {
+    const body = document.getElementById('tabelaBody');
+    body.innerHTML = "";
+    const limiteExibicao = dados.slice(0, 500);
+
+    limiteExibicao.forEach((d) => {
+        const ncmHtml = d.ncms.map(n => `<span class="ncm-tag">${n}</span>`).join('');
+        let descCurta = d.desc.length > 120 ? d.desc.substring(0, 120) + "..." : d.desc;
+
+        let badgePis = "";
+        if(d.pisCofins === 'M') {
+            badgePis = '<span style="background:#e8f5e9; color:#2e7d32; padding:2px 5px; border-radius:3px; font-size:10px; border:1px solid #c8e6c9;">MONOFÁSICO</span>';
+        } else if(d.pisCofins === 'Z') {
+            badgePis = '<span style="background:#e3f2fd; color:#1565c0; padding:2px 5px; border-radius:3px; font-size:10px; border:1px solid #bbdefb;">ALIQ. ZERO</span>';
+        } else {
+            badgePis = '<span style="background:#ffebee; color:#c62828; padding:2px 5px; border-radius:3px; font-size:10px; border:1px solid #ffcdd2;">TRIBUTADO</span>';
+        }
+
+        const tr = document.createElement('tr');
+        tr.onclick = () => selecionarProduto(d, tr);
+        tr.innerHTML = `
+            <td><strong>${d.item}</strong></td>
+            <td><span class="cest-badge">${d.cest}</span></td>
+            <td><div class="ncm-wrapper">${ncmHtml}</div></td>
+            <td>
+                <div class="desc-text" title="${d.desc}">${descCurta}</div>
+                <div style="margin-top:4px;">${badgePis}</div>
+            </td>
+            <td>${d.icms}</td>
+            <td>${d.mva}</td>
+            <td><div class="leg-text">${d.red || '-'}</div></td>
+        `;
+        body.appendChild(tr);
+    });
+    
+    document.getElementById('status').innerText = `Base carregada: ${limiteExibicao.length} grupos de produtos.`;
+}
+
+function filtrar() {
+    const termo = document.getElementById('searchInput').value.toLowerCase();
+    const filtrados = baseDeDados.filter(d => 
+        d.cest.includes(termo) || 
+        d.desc.toLowerCase().includes(termo) || 
+        d.ncms.some(n => n.includes(termo)) || 
+        d.item.toString().includes(termo)
+    );
+    montarTabela(filtrados);
+}
+
+// =================================================================================
+// LÓGICA DO SIMULADOR
+// =================================================================================
+
+function parsePercent(valStr) {
+    if(!valStr) return 0;
+    const limpo = valStr.replace('%', '').replace(',', '.').trim();
+    return parseFloat(limpo) || 0;
+}
+
+function lerInputNumero(id) {
+    let val = document.getElementById(id).value;
+    if (!val) return 0;
+    val = val.replace(',', '.');
+    return parseFloat(val) || 0;
+}
+
+function selecionarProduto(dados, elementoTr) {
+    produtoSelecionado = dados;
+    document.querySelectorAll('tr.selected').forEach(tr => tr.classList.remove('selected'));
+    elementoTr.classList.add('selected');
+
+    const painel = document.getElementById('simulador');
+    painel.style.display = "block";
+    
+    document.getElementById('simNomeProduto').innerText = `${dados.item} - ${dados.desc.substring(0, 60)}...`;
+    document.getElementById('inMva').value = dados.mva;
+    
+    let creditoSugerido = parsePercent(dados.icms);
+    if (dados.red && dados.red.includes("Final 12%")) { 
+        creditoSugerido = 12; 
+    }
+    
+    document.getElementById('inCredito').value = creditoSugerido;
+    document.getElementById('inCustoTabela').value = "100,00"; 
+    
+    calcular();
+}
+
+function fecharSimulador() {
+    document.getElementById('simulador').style.display = "none";
+    document.querySelectorAll('tr.selected').forEach(tr => tr.classList.remove('selected'));
+}
+
+function calcular() {
+    if (!produtoSelecionado) return;
+
+    // ENTRADAS
+    const custoTabela = lerInputNumero('inCustoTabela');
+    const descontoPct = lerInputNumero('inDesconto');
+    const margem = lerInputNumero('inMargem');
+    const creditoEntradaPct = lerInputNumero('inCredito');
+    
+    const icmsSaidaPct = parsePercent(produtoSelecionado.icms);
+    const mvaPct = parsePercent(produtoSelecionado.mva);
+
+    // DEFINE TAXA PIS/COFINS
+    let taxaPisCofins = 0;
+    if (produtoSelecionado.pisCofins === 'T') {
+        taxaPisCofins = 9.25; // 9.25% padrão se for Tributado
+    }
+
+    // 1. Custo NF (Base Comum)
+    const custoNF = custoTabela * (1 - (descontoPct / 100));
+
+    // =================================================================
+    // CENÁRIO A: REGIME NORMAL
+    // =================================================================
+    const valorCredito = custoNF * (creditoEntradaPct / 100);
+    const custoLiquidoA = custoNF - valorCredito;
+
+    // Preço Venda A: Inclui ICMS Saída + PIS/COFINS + Margem
+    const taxaTotalA = (icmsSaidaPct + taxaPisCofins + margem) / 100;
+    let divisorA = 1 - taxaTotalA;
+    let precoVendaA = 0;
+    
+    if (divisorA > 0.001) {
+        precoVendaA = custoLiquidoA / divisorA;
+    }
+    
+    const debitoIcmsA = precoVendaA * (icmsSaidaPct / 100);
+    const debitoPisA  = precoVendaA * (taxaPisCofins / 100);
+    const debitoTotalA = debitoIcmsA + debitoPisA;
+
+    // PMZ A: Custo / (1 - Impostos). Sem Margem.
+    let divisorPmzA = 1 - ((icmsSaidaPct + taxaPisCofins) / 100);
+    let pmzA = 0;
+    if(divisorPmzA > 0.001) {
+        pmzA = custoLiquidoA / divisorPmzA;
+    }
+
+    // Lucro A
+    let lucroReaisA = precoVendaA - debitoTotalA - custoLiquidoA;
+    let lucroPercentualA = 0;
+    if(precoVendaA > 0) {
+        lucroPercentualA = (lucroReaisA / precoVendaA) * 100;
+    }
+
+    // =================================================================
+    // CENÁRIO B: ST
+    // =================================================================
+    const baseST = custoNF * (1 + (mvaPct / 100));
+    const icmsProprioEntrada = custoNF * (creditoEntradaPct / 100); 
+    
+    let valorST = (baseST * (icmsSaidaPct / 100)) - icmsProprioEntrada;
+    if (valorST < 0) valorST = 0;
+
+    const custoTotalB = custoNF + valorST; 
+
+    // Preço B: CustoTotal / (1 - (Margem + PIS/COFINS))
+    const taxaTotalB = (margem + taxaPisCofins) / 100;
+    let divisorB = 1 - taxaTotalB;
+    let precoVendaB = 0;
+    
+    if (divisorB > 0.001) {
+        precoVendaB = custoTotalB / divisorB;
+    }
+
+    const debitoPisB = precoVendaB * (taxaPisCofins / 100);
+
+    // PMZ B: CustoTotal / (1 - PIS/COFINS)
+    let divisorPmzB = 1 - (taxaPisCofins / 100);
+    let pmzB = 0;
+    if(divisorPmzB > 0.001) {
+        pmzB = custoTotalB / divisorPmzB;
+    }
+
+    // Lucro B
+    let lucroReaisB = precoVendaB - custoTotalB - debitoPisB;
+    let lucroPercentualB = 0;
+    if(precoVendaB > 0) {
+        lucroPercentualB = (lucroReaisB / precoVendaB) * 100;
+    }
+
+    // =================================================================
+    // ATUALIZAR INTERFACE
+    // =================================================================
+
+    // Cenário A
+    document.getElementById('resANota').innerText = formatarMoeda(custoNF);
+    document.getElementById('resACredito').innerText = formatarMoeda(valorCredito);
+    document.getElementById('resACustoLiq').innerText = formatarMoeda(custoLiquidoA);
+    document.getElementById('resAIcmsRate').innerText = icmsSaidaPct + "%";
+    
+    // Mostra PIS se for > 0
+    document.getElementById('resAPisRate').innerText = taxaPisCofins + "%";
+    if(taxaPisCofins > 0) {
+        document.getElementById('resAPisRate').style.color = "#d35400";
+    } else {
+        document.getElementById('resAPisRate').style.color = "#27ae60"; // Verde se for zero
+    }
+
+    document.getElementById('resADebitoTotal').innerText = formatarMoeda(debitoTotalA);
+    document.getElementById('resAPreco').innerText = formatarMoeda(precoVendaA);
+    
+    document.getElementById('resAPMZ').innerText = formatarMoeda(pmzA);
+    document.getElementById('resALucroR').innerText = formatarMoeda(lucroReaisA);
+    document.getElementById('resALucroP').innerText = lucroPercentualA.toFixed(2) + "%";
+
+    document.getElementById('logicA').innerHTML = `
+        <span>Custo Líq. / (1 - (ICMS + PIS/COFINS + Margem))</span>
+        <span>${formatarMoeda(custoLiquidoA)} / ${divisorA.toFixed(4)}</span>
+    `;
+
+    // Cenário B
+    document.getElementById('resBNota').innerText = formatarMoeda(custoNF);
+    document.getElementById('resBBaseST').innerText = formatarMoeda(baseST);
+    document.getElementById('resBValorST').innerText = formatarMoeda(valorST);
+    document.getElementById('resBCustoTotal').innerText = formatarMoeda(custoTotalB);
+    
+    document.getElementById('resBPisRate').innerText = taxaPisCofins + "%";
+    if(taxaPisCofins > 0) document.getElementById('resBPisRate').style.color = "#d35400";
+
+    document.getElementById('resBPreco').innerText = formatarMoeda(precoVendaB);
+
+    document.getElementById('resBPMZ').innerText = formatarMoeda(pmzB);
+    document.getElementById('resBLucroR').innerText = formatarMoeda(lucroReaisB);
+    document.getElementById('resBLucroP').innerText = lucroPercentualB.toFixed(2) + "%";
+
+    document.getElementById('logicB').innerHTML = `
+        <span>Custo Total / (1 - (Margem + PIS/COFINS))</span>
+        <span>${formatarMoeda(custoTotalB)} / ${divisorB.toFixed(2)}</span>
+    `;
+}
+
+function formatarMoeda(valor) {
+    if(isNaN(valor)) return "R$ 0,00";
+    return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+}
+
+</script>
+</body>
+</html>
 
