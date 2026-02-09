@@ -306,7 +306,7 @@
 
 <script>
 // =================================================================================
-// SEGURANÇA E LOGIN (HASH SHA-256 - MODO COMPATÍVEL)
+// SEGURANÇA E LOGIN (HASH SHA-256)
 // =================================================================================
 const CREDENCIAIS = {
     "henrique": "28e4414030638531d9990b7933939523d49488426002f23243c333f234771501",
@@ -338,27 +338,43 @@ async function hashSenha(ascii) {
 }
 
 async function fazerLogin() {
+    // 1. Pega o usuário e converte para minúsculo e remove espaços
     const userInput = document.getElementById('user').value.toLowerCase().trim();
-    const passInput = document.getElementById('pass').value;
+    
+    // 2. Pega a senha e TAMBÉM remove espaços extras (FIX!)
+    const passInput = document.getElementById('pass').value.trim();
     const errorMsg = document.getElementById('loginError');
 
+    // Verifica se o usuário existe
     if (!CREDENCIAIS[userInput]) {
+        errorMsg.innerText = "Usuário não encontrado.";
         errorMsg.style.display = 'block';
         return;
     }
 
     try {
+        // Gera o hash da senha digitada
         const hashGerado = await hashSenha(passInput);
+        
+        // Compara
         if (hashGerado === CREDENCIAIS[userInput]) {
             document.getElementById('login-screen').style.display = 'none';
             document.getElementById('app-content').style.display = 'block';
             inicializar();
         } else {
+            // MODO DIAGNÓSTICO: Mostra o erro real se a senha não bater
+            alert("DIAGNÓSTICO DE ERRO:\n\n" +
+                  "Usuário: " + userInput + "\n" +
+                  "Senha Digitada (Limpa): [" + passInput + "]\n\n" +
+                  "Hash Gerado: " + hashGerado.substring(0, 15) + "...\n" +
+                  "Hash Esperado: " + CREDENCIAIS[userInput].substring(0, 15) + "...");
+            
+            errorMsg.innerText = "Senha incorreta.";
             errorMsg.style.display = 'block';
         }
     } catch (e) {
         console.error(e);
-        errorMsg.innerText = "Erro no sistema de login. Contate o suporte.";
+        errorMsg.innerText = "Erro técnico no login.";
         errorMsg.style.display = 'block';
     }
 }
