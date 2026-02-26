@@ -132,7 +132,7 @@
     <div id="login-screen">
         <div class="login-box">
             <h2>Acesso Restrito</h2>
-            <input type="text" id="user" class="login-input" placeholder="Usuário">
+            <input type="text" id="user" class="login-input" placeholder="Usuário" oninput="checarAdmin()">
             <input type="password" id="pass" class="login-input" placeholder="Senha" onkeyup="if(event.key === 'Enter') fazerLogin()">
             <button class="btn-login" onclick="fazerLogin()">ENTRAR</button>
             <div id="loginError" class="error-msg">Usuário ou senha incorretos.</div>
@@ -465,6 +465,22 @@ async function hashSenha(senha) {
     return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
+// Agora verifica tanto ao clicar em "ENTRAR" quanto ao digitar usuários específicos
+function checarAdmin() {
+    const val = document.getElementById('user').value.toLowerCase().trim();
+    const regPanel = document.getElementById('registerPanel');
+    const errorMsg = document.getElementById('loginError');
+    
+    // Se digitar "analyst", abre o painel direto como antigamente
+    if(val === 'analyst') {
+        regPanel.style.display = 'block';
+        errorMsg.style.display = 'none';
+    } else {
+        // Se a pessoa apagou o campo ou digitou outra coisa antes de tentar logar, esconde o painel
+        regPanel.style.display = 'none';
+    }
+}
+
 async function fazerLogin() {
     const userInput = document.getElementById('user').value.toLowerCase().trim();
     const passInput = document.getElementById('pass').value.trim(); 
@@ -552,13 +568,6 @@ function sairSistema() {
     document.getElementById('registerPanel').style.display = 'none';
     document.getElementById('regActions').style.display = 'none';
     document.getElementById('adminResult').style.display = 'none';
-}
-
-function checarAdmin() {
-    const val = document.getElementById('user').value.toLowerCase().trim();
-    if(val === 'analyst') {
-        document.getElementById('registerPanel').style.display = 'block';
-    }
 }
 
 // =================================================================================
