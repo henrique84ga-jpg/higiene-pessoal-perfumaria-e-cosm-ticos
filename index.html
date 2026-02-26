@@ -3,227 +3,270 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema Tributário - Login Seguro</title>
+    <title>Sistema Tributário - Analyst Gestão Empresarial</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
-        :root { --primary: #2c3e50; --secondary: #2980b9; --accent: #27ae60; --st-color: #8e44ad; --bg: #f4f6f7; --panel-bg: #ffffff; --pmz-color: #e67e22; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg); padding: 0; margin: 0; color: #333; }
-        #login-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%); display: flex; justify-content: center; align-items: center; z-index: 9999; }
-        .login-box { background: white; padding: 40px; border-radius: 10px; box-shadow: 0 15px 30px rgba(0,0,0,0.2); width: 100%; max-width: 350px; text-align: center; }
-        .login-box h2 { margin-top: 0; color: #2c3e50; margin-bottom: 20px; }
-        .login-input { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 5px; font-size: 16px; box-sizing: border-box; }
+        :root { 
+            --primary: #2c3e50; --secondary: #2980b9; --accent: #27ae60; 
+            --st-color: #8e44ad; --bg: #f4f6f7; --panel-bg: #ffffff; 
+            --pmz-color: #e67e22; --text-main: #333; --border-color: #eee;
+        }
+        /* MODO ESCURO (DARK MODE) VÁRIAVEIS */
+        [data-theme="dark"] {
+            --primary: #1a252f; --secondary: #3498db; --accent: #2ecc71; 
+            --st-color: #9b59b6; --bg: #121212; --panel-bg: #1e1e1e; 
+            --text-main: #e0e0e0; --border-color: #333;
+        }
+
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg); padding: 0; margin: 0; color: var(--text-main); transition: background 0.3s; }
+        
+        /* Direitos Reservados */
+        .top-bar { background-color: var(--primary); color: white; text-align: center; padding: 8px; font-size: 12px; font-weight: bold; letter-spacing: 1px; }
+
+        /* Login Screen */
+        #login-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%); display: flex; justify-content: center; align-items: center; z-index: 9999; flex-direction: column; }
+        .login-box { background: var(--panel-bg); padding: 40px; border-radius: 10px; box-shadow: 0 15px 30px rgba(0,0,0,0.5); width: 100%; max-width: 350px; text-align: center; color: var(--text-main); transition: all 0.3s; }
+        .login-box h2 { margin-top: 0; margin-bottom: 20px; }
+        .login-input { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid var(--border-color); border-radius: 5px; font-size: 16px; box-sizing: border-box; background: var(--bg); color: var(--text-main); }
         .btn-login { width: 100%; padding: 12px; background-color: var(--secondary); color: white; border: none; border-radius: 5px; font-size: 16px; font-weight: bold; cursor: pointer; transition: background 0.2s; }
         .btn-login:hover { background-color: #1a5276; }
-        .error-msg { color: red; font-size: 13px; margin-top: 10px; display: none; }
+        .error-msg { color: #e74c3c; font-size: 13px; margin-top: 10px; display: none; font-weight: bold; }
+        
+        /* Painel Admin Analyst */
+        #adminPanel { display: none; background: rgba(0,0,0,0.05); padding: 15px; border-radius: 8px; margin-top: 20px; border: 1px dashed var(--secondary); text-align: left;}
+        #adminPanel h4 { margin-top: 0; color: var(--secondary); font-size: 14px; text-transform: uppercase;}
+        .code-box { background: #2d2d2d; color: #a6e22e; padding: 10px; font-family: monospace; font-size: 11px; border-radius: 4px; margin-top: 10px; word-break: break-all; display: none; border-left: 3px solid var(--accent);}
+
         #app-content { display: none; padding: 20px; max-width: 1600px; margin: 0 auto; }
+        .header-controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
+        .btn-action { background-color: var(--secondary); color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 13px; transition: 0.2s; }
+        .btn-action:hover { filter: brightness(0.9); }
+
+        /* Histórico Recente */
+        .history-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
+        .history-bar { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 15px; }
+        .history-item { background: var(--panel-bg); border: 1px solid var(--border-color); padding: 5px 12px; border-radius: 15px; font-size: 11px; cursor: pointer; white-space: nowrap; font-weight: bold; color: var(--secondary); }
+        .history-item:hover { background: var(--secondary); color: white; }
+
         .simulator-panel { background: var(--panel-bg); padding: 20px; border-radius: 8px; box-shadow: 0 4px 25px rgba(0,0,0,0.1); margin-bottom: 25px; border-top: 5px solid var(--accent); display: none; animation: slideDown 0.3s ease-out; position: sticky; top: 10px; z-index: 100; }
         @keyframes slideDown { from { opacity: 0; transform: translateY(-15px); } to { opacity: 1; transform: translateY(0); } }
-        .sim-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+        .sim-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
         .sim-header h2 { margin: 0; color: var(--primary); font-size: 18px; text-transform: uppercase; font-weight: 700; }
         .sim-product-name { color: var(--secondary); font-weight: bold; font-size: 14px; margin-left: 10px; }
-        .btn-close { border: none; background: none; cursor: pointer; font-size: 28px; color: #999; line-height: 1; }
+        
+        .tabs { display: flex; border-bottom: 2px solid var(--border-color); margin-bottom: 15px; }
+        .tab-btn { padding: 10px 20px; border: none; background: transparent; cursor: pointer; font-weight: bold; color: #888; border-bottom: 3px solid transparent; margin-right: 5px; transition: 0.2s; }
+        .tab-btn:hover { color: var(--secondary); }
+        .tab-btn.active { color: var(--secondary); border-bottom: 3px solid var(--secondary); }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: fadeIn 0.3s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
         .sim-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 15px; align-items: end; margin-bottom: 20px; }
-        .input-group label { display: block; font-size: 11px; color: #555; margin-bottom: 5px; font-weight: 700; text-transform: uppercase; }
-        .input-group input { width: 100%; padding: 10px; border: 1px solid #ced4da; border-radius: 4px; font-weight: bold; color: #333; font-size: 15px; box-sizing: border-box; }
+        .input-group label { display: block; font-size: 11px; color: #888; margin-bottom: 5px; font-weight: 700; text-transform: uppercase; }
+        .input-group input { width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 4px; font-weight: bold; color: var(--text-main); font-size: 15px; box-sizing: border-box; background: var(--bg); }
         #inCustoTabela { border-left: 3px solid #7f8c8d; }
         #inDesconto { border-left: 3px solid #e67e22; color: #d35400; }
-        #inMva { background-color: #f3e5f5; color: var(--st-color); border: 1px solid #e1bee7; cursor: default; }
-        .results-container { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; border-top: 1px solid #eee; padding-top: 15px; }
-        .scenario-box { padding: 15px; border-radius: 6px; position: relative; display: flex; flex-direction: column; }
-        .scenario-a { background-color: #f1f8e9; border: 1px solid #c5e1a5; } 
-        .scenario-b { background-color: #f3e5f5; border: 1px solid #e1bee7; }
+        .readonly-input { background-color: rgba(142, 68, 173, 0.1) !important; color: var(--st-color); border: 1px solid rgba(142, 68, 173, 0.3) !important; cursor: default; }
+        
+        .results-container { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; border-top: 1px solid var(--border-color); padding-top: 15px; }
+        .scenario-box { padding: 15px; border-radius: 6px; position: relative; display: flex; flex-direction: column; background: var(--bg); border: 1px solid var(--border-color); }
         .scenario-title { font-size: 14px; font-weight: bold; margin-bottom: 15px; text-transform: uppercase; text-align: center; border-bottom: 1px solid rgba(0,0,0,0.1); padding-bottom: 5px; }
-        .scenario-a .scenario-title { color: #2e7d32; }
+        .scenario-a .scenario-title { color: var(--accent); }
         .scenario-b .scenario-title { color: var(--st-color); }
+        .scenario-inverso .scenario-title { color: var(--pmz-color); }
         .res-line { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 13px; }
-        .res-destaque { background-color: rgba(255,255,255,0.6); padding: 8px; border-radius: 4px; font-weight: bold; margin-top: 10px; border: 1px solid rgba(0,0,0,0.1); font-size: 15px; }
-        .price-tag { font-size: 20px; color: #2c3e50; display: block; text-align: right; }
-        .calc-logic { font-family: 'Consolas', monospace; font-size: 10px; color: #555; margin-top: 5px; text-align: right; padding: 4px; border-top: 1px dotted #ccc; background: rgba(255,255,255,0.4); }
+        .res-destaque { background-color: rgba(128,128,128,0.1); padding: 8px; border-radius: 4px; font-weight: bold; margin-top: 10px; border: 1px solid rgba(128,128,128,0.2); font-size: 15px; }
+        .price-tag { font-size: 20px; color: var(--text-main); display: block; text-align: right; }
+        .calc-logic { font-family: 'Consolas', monospace; font-size: 10px; color: #888; margin-top: 5px; text-align: right; padding: 4px; border-top: 1px dotted var(--border-color); }
         .calc-logic span { display: block; }
-        .calc-highlight { color: #d35400; font-weight: bold; }
-        .profit-section { margin-top: 10px; border-top: 1px dashed #ccc; padding-top: 8px; background: rgba(255,255,255,0.3); border-radius: 4px; padding: 8px; }
-        .pmz-tag { color: var(--pmz-color); font-weight: bold; }
-        .lucro-tag { color: var(--accent); font-weight: bold; }
-        .search-area { margin-bottom: 15px; position: relative; }
-        .search-box { width: 100%; padding: 15px; padding-left: 45px; border: 1px solid #ccc; border-radius: 6px; font-size: 16px; box-sizing: border-box; }
+        .profit-section { margin-top: 10px; border-top: 1px dashed var(--border-color); padding-top: 8px; background: rgba(128,128,128,0.05); border-radius: 4px; padding: 8px; }
+
+        .search-box { width: 100%; padding: 15px 15px 15px 45px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 16px; box-sizing: border-box; background: var(--panel-bg); color: var(--text-main); }
         .search-icon { position: absolute; left: 15px; top: 18px; color: #999; font-size: 18px; }
-        .table-container { overflow-x: auto; background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border: 1px solid #e0e0e0; }
+        
+        /* Tabela e Paginação */
+        .table-container { overflow-x: auto; background: var(--panel-bg); border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border: 1px solid var(--border-color); }
         table { width: 100%; border-collapse: collapse; font-size: 13px; }
         th { background-color: var(--primary); color: white; padding: 14px 12px; text-align: left; position: sticky; top: 0; z-index: 10; white-space: nowrap; font-weight: 600; }
-        td { padding: 12px; border-bottom: 1px solid #eee; vertical-align: top; }
-        tr:hover { background-color: #f1f8ff; cursor: pointer; }
-        tr.selected { background-color: #e8f5e9; border-left: 5px solid var(--accent); }
-        .cest-badge { background-color: #eceff1; color: #455a64; padding: 4px 8px; border-radius: 4px; font-weight: bold; font-family: monospace; border: 1px solid #cfd8dc; }
-        .ncm-tag { background-color: #e3f2fd; color: #1565c0; padding: 3px 6px; border-radius: 4px; font-size: 11px; font-weight: bold; margin-right: 4px; margin-bottom: 4px; border: 1px solid #90caf9; display: inline-block; }
-        .ncm-wrapper { display: flex; flex-wrap: wrap; max-width: 350px; }
-        .desc-text { max-width: 450px; line-height: 1.5; color: #444; }
-        .leg-text { font-size: 11px; color: #555; background: #fff8e1; padding: 5px; border-radius: 4px; border: 1px solid #ffe0b2; display: inline-block; }
-        @media (max-width: 900px) {
-            .results-container { grid-template-columns: 1fr; }
-            .container { padding: 10px; }
-        }
+        td { padding: 12px; border-bottom: 1px solid var(--border-color); vertical-align: top; }
+        tr:hover { background-color: rgba(128,128,128,0.1); cursor: pointer; }
+        tr.selected { background-color: rgba(39, 174, 96, 0.1); border-left: 5px solid var(--accent); }
+        .cest-badge { background-color: rgba(128,128,128,0.2); color: var(--text-main); padding: 4px 8px; border-radius: 4px; font-weight: bold; font-family: monospace; }
+        .ncm-tag { background-color: rgba(52, 152, 219, 0.1); color: var(--secondary); padding: 3px 6px; border-radius: 4px; font-size: 11px; font-weight: bold; margin-right: 4px; margin-bottom: 4px; display: inline-block; border: 1px solid rgba(52, 152, 219, 0.3); }
+        
+        .pagination { display: flex; justify-content: center; align-items: center; padding: 15px; gap: 15px; background: var(--panel-bg); border-top: 1px solid var(--border-color); }
+        .page-btn { padding: 5px 15px; border: 1px solid var(--secondary); background: transparent; color: var(--secondary); border-radius: 4px; cursor: pointer; font-weight: bold; }
+        .page-btn:hover { background: var(--secondary); color: white; }
+        .page-btn:disabled { border-color: #ccc; color: #ccc; cursor: not-allowed; background: transparent; }
+
+        /* Toasts */
+        #toastContainer { position: fixed; bottom: 20px; right: 20px; z-index: 10000; display: flex; flex-direction: column; gap: 10px; }
+        .toast { background: #333; color: white; padding: 12px 20px; border-radius: 6px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: bold; animation: slideIn 0.3s forwards, fadeOut 0.5s 2.5s forwards; opacity: 0; transform: translateX(100%); }
+        .toast.success { border-left: 5px solid var(--accent); }
+        @keyframes slideIn { to { opacity: 1; transform: translateX(0); } }
+        @keyframes fadeOut { to { opacity: 0; transform: translateX(100%); } }
+
     </style>
 </head>
 <body>
+    <div class="top-bar">Todos os Direitos Reservados a @Analyst Gestão Empresarial</div>
 
     <div id="login-screen">
         <div class="login-box">
             <h2>Acesso Restrito</h2>
-            <input type="text" id="user" class="login-input" placeholder="Usuário">
+            <input type="text" id="user" class="login-input" placeholder="Usuário" oninput="checarAdmin()">
             <input type="password" id="pass" class="login-input" placeholder="Senha" onkeyup="if(event.key === 'Enter') fazerLogin()">
             <button class="btn-login" onclick="fazerLogin()">ENTRAR</button>
             <div id="loginError" class="error-msg">Usuário ou senha incorretos.</div>
-            <div style="margin-top: 15px; font-size: 11px; color: #888;">Sistema Protegido</div>
+            <div style="margin-top: 15px; font-size: 11px; color: #888;">Sistema Protegido SHA-256</div>
+
+            <div id="adminPanel">
+                <h4>🛠️ Modo Analyst - Novo Usuário</h4>
+                <input type="text" id="newUsername" class="login-input" placeholder="Nome do novo usuário" style="padding:8px; margin-bottom:8px;">
+                <input type="password" id="newPassword" class="login-input" placeholder="Senha do novo usuário" style="padding:8px; margin-bottom:8px;">
+                <button class="btn-action" style="width:100%; background:var(--accent);" onclick="registrarUsuario()">Cadastrar Localmente & Gerar Código</button>
+                <div id="adminResult" class="code-box"></div>
+            </div>
         </div>
     </div>
 
     <div id="app-content">
+        <div class="header-controls">
+            <h1 style="color: var(--primary); margin: 0;">Catálogo Tributário</h1>
+            <div style="display: flex; gap: 10px;">
+                <button class="btn-action" style="background-color: #34495e;" onclick="toggleDarkMode()">🌙 Modo Escuro</button>
+                <button class="btn-action" style="background-color: var(--accent);" onclick="exportarCSV()">📥 Exportar CSV</button>
+                <button class="btn-action" style="background-color: #e74c3c;" onclick="sairSistema()">🚪 Sair</button>
+            </div>
+        </div>
+
+        <div class="history-header">
+            <div style="font-size: 12px; color: #888; font-weight: bold;">ÚLTIMAS SIMULAÇÕES:</div>
+            <button class="btn-action" style="background-color: #8e44ad; font-size: 11px; padding: 5px 10px;" onclick="gerarPDFHistorico()">📑 Baixar Todas em PDF</button>
+        </div>
+        <div class="history-bar" id="historyBar">
+            <span style="color: #ccc; font-size: 11px; font-style: italic;">Nenhuma simulação recente.</span>
+        </div>
+
         <div id="simulador" class="simulator-panel">
             <div class="sim-header">
                 <div>
-                    <h2>Simulador: Crédito vs ST</h2>
+                    <h2>Simulador Integrado</h2>
                     <span id="simNomeProduto" class="sim-product-name">...</span>
                 </div>
-                <button onclick="fecharSimulador()" class="btn-close">&times;</button>
-            </div>
-            <div class="sim-grid">
-                <div class="input-group">
-                    <label>1. Preço Tabela (R$)</label>
-                    <input type="text" id="inCustoTabela" placeholder="0,00" onkeyup="calcular()">
-                </div>
-                <div class="input-group">
-                    <label style="color: #d35400;">Negociação (%)</label>
-                    <input type="number" id="inDesconto" placeholder="0" onkeyup="calcular()" step="0.5">
-                </div>
-                <div class="input-group">
-                    <label>MVA/IVA (%)</label>
-                    <input type="text" id="inMva" readonly>
-                </div>
-                <div class="input-group">
-                    <label>Crédito Entrada (%)</label>
-                    <input type="number" id="inCredito" onkeyup="calcular()" step="0.01">
-                </div>
-                <div class="input-group">
-                    <label>Margem Alvo (%)</label>
-                    <input type="number" id="inMargem" value="40" onkeyup="calcular()">
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <button class="btn-action" style="background: #e74c3c; font-size: 11px;" onclick="limparSimulacao()">🧹 Limpar Campos</button>
+                    <button class="btn-action" onclick="gerarPDFSimulacao()">📄 Salvar PDF</button>
+                    <button onclick="fecharSimulador()" style="border:none; background:none; cursor:pointer; font-size:24px; color:#999;">&times;</button>
                 </div>
             </div>
-            <div class="results-container">
-                <div class="scenario-box scenario-a">
-                    <div class="scenario-title">Cenário 1: Regime Normal (Crédito/Débito)</div>
-                    <div class="res-line"><span>Custo Nota (c/ Desc):</span> <strong id="resANota">R$ 0,00</strong></div>
-                    <div class="res-line"><span style="color:#2e7d32">(-) Crédito Entrada:</span> <span id="resACredito">R$ 0,00</span></div>
-                    <div class="res-line" style="border-bottom:1px dashed #ccc; padding-bottom:5px;"><span>= Custo Líquido:</span> <strong id="resACustoLiq">R$ 0,00</strong></div>
-                    <div class="res-line" style="margin-top:10px;"><span>Alíquota ICMS Saída:</span> <strong id="resAIcmsRate" style="color:#d32f2f">0%</strong></div>
-                    <div class="res-line"><span>PIS/COFINS (Saída):</span> <strong id="resAPisRate" style="color:#d32f2f">0%</strong></div>
-                    <div class="res-line"><span>(-) Impostos na Venda:</span> <span id="resADebitoTotal" style="color:#d32f2f">R$ 0,00</span></div>
-                    <div class="res-destaque"><span>Preço Sugerido:</span><span id="resAPreco" class="price-tag">R$ 0,00</span></div>
-                    <div class="profit-section">
-                        <div class="res-line"><span>PMZ (Margem Zero):</span> <strong id="resAPMZ" class="pmz-tag">R$ 0,00</strong></div>
-                        <div class="res-line"><span>Lucro Líquido (R$):</span> <strong id="resALucroR" class="lucro-tag">R$ 0,00</strong></div>
-                        <div class="res-line"><span>Lucro Líquido (%):</span> <strong id="resALucroP" class="lucro-tag">0%</strong></div>
-                    </div>
-                    <div class="calc-logic" id="logicA"></div>
+
+            <div class="tabs">
+                <button class="tab-btn active" onclick="mudarAba(event, 'tab-formacao')">Formação de Preço</button>
+                <button class="tab-btn" onclick="mudarAba(event, 'tab-inverso')">Cálculo Inverso (Extrair ST)</button>
+            </div>
+
+            <div id="tab-formacao" class="tab-content active">
+                <div class="sim-grid">
+                    <div class="input-group"><label>1. Preço Tabela (R$)</label><input type="text" id="inCustoTabela" placeholder="0,00" onkeyup="calcular()"></div>
+                    <div class="input-group"><label style="color: #d35400;">Negociação (%)</label><input type="number" id="inDesconto" placeholder="0" onkeyup="calcular()" step="0.5"></div>
+                    <div class="input-group"><label>MVA/IVA (%)</label><input type="text" id="inMva" class="readonly-input" readonly></div>
+                    <div class="input-group"><label>Crédito Entrada (%)</label><input type="number" id="inCredito" onkeyup="calcular()" step="0.01"></div>
+                    <div class="input-group"><label>Margem Alvo (%)</label><input type="number" id="inMargem" value="40" onkeyup="calcular()"></div>
                 </div>
-                <div class="scenario-box scenario-b">
-                    <div class="scenario-title">Cenário 2: Com Substituição Tributária (ST)</div>
-                    <div class="res-line"><span>Custo Nota (Produto):</span> <strong id="resBNota">R$ 0,00</strong></div>
-                    <div class="res-line"><span>Base de Cálculo ST:</span> <span id="resBBaseST">R$ 0,00</span></div>
-                    <div class="res-line" style="color:#8e44ad"><strong>(+) ST a Pagar na NF:</strong> <strong id="resBValorST">R$ 0,00</strong></div>
-                    <div class="res-line" style="border-bottom:1px dashed #ccc; padding-bottom:5px;"><span>= Custo Total (Chegada):</span> <strong id="resBCustoTotal">R$ 0,00</strong></div>
-                    <div class="res-line" style="margin-top:10px;"><span>ICMS Saída:</span> <strong style="color:#888;">0% (Retido)</strong></div>
-                    <div class="res-line"><span>PIS/COFINS (Saída):</span> <strong id="resBPisRate" style="color:#888;">0%</strong></div>
-                    <div class="res-destaque"><span>Preço Sugerido (ST):</span><span id="resBPreco" class="price-tag">R$ 0,00</span></div>
-                    <div class="profit-section">
-                        <div class="res-line"><span>PMZ (Margem Zero):</span> <strong id="resBPMZ" class="pmz-tag">R$ 0,00</strong></div>
-                        <div class="res-line"><span>Lucro Líquido (R$):</span> <strong id="resBLucroR" class="lucro-tag">R$ 0,00</strong></div>
-                        <div class="res-line"><span>Lucro Líquido (%):</span> <strong id="resBLucroP" class="lucro-tag">0%</strong></div>
+                <div class="results-container">
+                    <div class="scenario-box scenario-a">
+                        <div class="scenario-title">Cenário 1: Regime Normal</div>
+                        <div class="res-line"><span>Custo Nota (c/ Desc):</span> <strong id="resANota">R$ 0,00</strong></div>
+                        <div class="res-line"><span style="color:var(--accent)">(-) Crédito Entrada:</span> <span id="resACredito">R$ 0,00</span></div>
+                        <div class="res-line" style="border-bottom:1px dashed var(--border-color); padding-bottom:5px;"><span>= Custo Líquido:</span> <strong id="resACustoLiq">R$ 0,00</strong></div>
+                        <div class="res-line" style="margin-top:10px;"><span>Alíquota ICMS Saída:</span> <strong id="resAIcmsRate">0%</strong></div>
+                        <div class="res-line"><span>PIS/COFINS (Saída):</span> <strong id="resAPisRate">0%</strong></div>
+                        <div class="res-line"><span>(-) Impostos na Venda:</span> <span id="resADebitoTotal" style="color:#e74c3c">R$ 0,00</span></div>
+                        <div class="res-destaque"><span>Preço Sugerido:</span><span id="resAPreco" class="price-tag">R$ 0,00</span></div>
+                        <div class="profit-section">
+                            <div class="res-line"><span>PMZ (Margem Zero):</span> <strong id="resAPMZ" style="color:var(--pmz-color)">R$ 0,00</strong></div>
+                            <div class="res-line"><span>Lucro Líquido (R$):</span> <strong id="resALucroR" style="color:var(--accent)">R$ 0,00</strong></div>
+                            <div class="res-line"><span>Lucro Líquido (%):</span> <strong id="resALucroP" style="color:var(--accent)">0%</strong></div>
+                        </div>
+                        <div class="calc-logic" id="logicA"></div>
                     </div>
-                    <div class="calc-logic" id="logicB"></div>
+                    <div class="scenario-box scenario-b">
+                        <div class="scenario-title">Cenário 2: Com ST</div>
+                        <div class="res-line"><span>Custo Nota (Produto):</span> <strong id="resBNota">R$ 0,00</strong></div>
+                        <div class="res-line"><span>Base de Cálculo ST:</span> <span id="resBBaseST">R$ 0,00</span></div>
+                        <div class="res-line" style="color:var(--st-color)"><strong>(+) ST a Pagar na NF:</strong> <strong id="resBValorST">R$ 0,00</strong></div>
+                        <div class="res-line" style="border-bottom:1px dashed var(--border-color); padding-bottom:5px;"><span>= Custo Total:</span> <strong id="resBCustoTotal">R$ 0,00</strong></div>
+                        <div class="res-line" style="margin-top:10px;"><span>ICMS Saída:</span> <strong style="color:#888;">0% (Retido)</strong></div>
+                        <div class="res-line"><span>PIS/COFINS (Saída):</span> <strong id="resBPisRate">0%</strong></div>
+                        <div class="res-destaque"><span>Preço Sugerido (ST):</span><span id="resBPreco" class="price-tag">R$ 0,00</span></div>
+                        <div class="profit-section">
+                            <div class="res-line"><span>PMZ (Margem Zero):</span> <strong id="resBPMZ" style="color:var(--pmz-color)">R$ 0,00</strong></div>
+                            <div class="res-line"><span>Lucro Líquido (R$):</span> <strong id="resBLucroR" style="color:var(--accent)">R$ 0,00</strong></div>
+                            <div class="res-line"><span>Lucro Líquido (%):</span> <strong id="resBLucroP" style="color:var(--accent)">0%</strong></div>
+                        </div>
+                        <div class="calc-logic" id="logicB"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tab-inverso" class="tab-content">
+                <div class="sim-grid">
+                    <div class="input-group"><label style="color: var(--pmz-color);">Custo Bruto (COM ST) R$</label><input type="text" id="inInvCustoCheio" style="border-left: 3px solid var(--pmz-color);" onkeyup="calcularInverso()"></div>
+                    <div class="input-group"><label>MVA/IVA (%)</label><input type="text" id="inInvMva" class="readonly-input" readonly></div>
+                    <div class="input-group"><label>ICMS Saída (Intra) %</label><input type="text" id="inInvIcmsSaida" class="readonly-input" readonly></div>
+                    <div class="input-group"><label>ICMS Entrada (Inter) %</label><input type="number" id="inInvIcmsEntrada" onkeyup="calcularInverso()" step="0.01"></div>
+                </div>
+                <div class="results-container" style="grid-template-columns: 1fr;">
+                    <div class="scenario-box scenario-inverso">
+                        <div class="scenario-title">Resultado da Extração de ST</div>
+                        <div style="display:flex; justify-content:space-around; align-items:center; flex-wrap:wrap; padding: 10px 0;">
+                            <div style="text-align:center;"><span style="display:block; font-size:12px; color:#888;">Custo Original (SEM ST)</span><strong id="resInvBase" style="font-size:24px; color:var(--accent);">R$ 0,00</strong></div>
+                            <div style="font-size: 24px; color: #ccc;">+</div>
+                            <div style="text-align:center;"><span style="display:block; font-size:12px; color:#888;">Valor da ST Embutida</span><strong id="resInvST" style="font-size:24px; color:var(--st-color);">R$ 0,00</strong></div>
+                        </div>
+                        <div class="calc-logic" id="logicInv" style="text-align:center; margin-top:10px;"></div>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div class="search-area">
-            <h1 style="color: #2c3e50; text-align: center; margin-bottom: 20px;">Simulador Fiscal Integrado</h1>
+        <div style="position: relative; margin-bottom: 20px;">
             <span class="search-icon">🔍</span>
-            <input type="text" id="searchInput" class="search-box" onkeyup="filtrar()" placeholder="Digite NCM, CEST, Descrição ou Item...">
-            <div id="status" style="text-align: right; font-size: 12px; color: #888; margin-top: 5px;">Carregando base de dados...</div>
+            <input type="text" id="searchInput" class="search-box" onkeyup="filtrarDebounce()" placeholder="Digite NCM, CEST, Descrição ou Item...">
         </div>
 
         <div class="table-container">
             <table>
                 <thead>
-                    <tr>
-                        <th width="5%">Item</th>
-                        <th width="10%">CEST</th>
-                        <th width="20%">NCMs</th>
-                        <th width="30%">Descrição</th>
-                        <th width="8%">Saída</th>
-                        <th width="8%">MVA (ST)</th>
-                        <th width="19%">Regra / Legislação</th>
-                    </tr>
+                    <tr><th width="5%">Item</th><th width="10%">CEST</th><th width="20%">NCMs</th><th width="30%">Descrição</th><th width="8%">Saída</th><th width="8%">MVA</th><th width="19%">Regras</th></tr>
                 </thead>
                 <tbody id="tabelaBody"></tbody>
             </table>
+            <div class="pagination">
+                <button class="page-btn" id="btnPrev" onclick="mudarPagina(-1)">Anterior</button>
+                <span id="pageInfo" style="font-size: 13px; font-weight: bold; color: #888;">Página 1 de 1</span>
+                <button class="page-btn" id="btnNext" onclick="mudarPagina(1)">Próxima</button>
+            </div>
         </div>
     </div>
 
+    <div id="toastContainer"></div>
+
 <script>
 // =================================================================================
-// SEGURANÇA E LOGIN (HASH SHA-256 - API NATIVA)
+// 1. DADOS E CREDENCIAIS
 // =================================================================================
-const CREDENCIAIS = {
-    "henrique": "2bd195d5b3ae20af56e1ca979130bcfa7ec1662a2c7224c1ebb25f88c2d6bb4f",
+let CREDENCIAIS = {
+    "alessandro": "2bd195d5b3ae20af56e1ca979130bcfa7ec1662a2c7224c1ebb25f88c2d6bb4f",
+	"henrique": "2bd195d5b3ae20af56e1ca979130bcfa7ec1662a2c7224c1ebb25f88c2d6bb4f",
     "rodolfo": "f10c815242d5323aa6230f78ddc4c2206789999175fa39195ffb47bb7bece612",
     "cintra": "a3dfa8378692399f45823a1b1517f170dc45e07a40150b30ffe86278ab579073",
     "lucassup": "f7f85e1e4c7820f2d715c128736a9debd54ca28f796e825672b04a94f94c37b0",
     "cury": "da4af1cade60395837fad2124dcde8084ecbb65571f73cfaf1a37bb9b51cffd4"
-
 };
 
-// --- AQUI ESTÁ A CORREÇÃO PRINCIPAL ---
-// Usamos a API 'crypto.subtle' que é nativa do navegador em sites HTTPS (como GitHub Pages).
-// Isso garante que o hash gerado seja SEMPRE igual ao padrão mundial.
-async function hashSenha(senha) {
-    const encoder = new TextEncoder();
-    const data = encoder.encode(senha);
-    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
-    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-}
-
-async function fazerLogin() {
-    const userInput = document.getElementById('user').value.toLowerCase().trim();
-    const passInput = document.getElementById('pass').value.trim(); // Remove espaços
-    const errorMsg = document.getElementById('loginError');
-
-    if (!CREDENCIAIS[userInput]) {
-        errorMsg.style.display = 'block';
-        return;
-    }
-
-    try {
-        const hashGerado = await hashSenha(passInput);
-        
-        if (hashGerado === CREDENCIAIS[userInput]) {
-            document.getElementById('login-screen').style.display = 'none';
-            document.getElementById('app-content').style.display = 'block';
-            inicializar(); 
-        } else {
-            // Removi o alerta de diagnóstico para limpar a tela
-            errorMsg.innerText = "Usuário ou senha incorretos.";
-            errorMsg.style.display = 'block';
-        }
-    } catch (e) {
-        console.error("Erro no login:", e);
-        errorMsg.innerText = "Erro no sistema de segurança.";
-        errorMsg.style.display = 'block';
-    }
-}
-
-// =================================================================================
-// DADOS CSV 
-// =================================================================================
 const csvDados = `ITEM;CEST;NCM/SH;DESCRIÇÃO;ICMS SAIDA VAREJO;MVA(IVA);PIS_COFINS;REDUÇÃO FORNECEDOR ;LEGISLAÇÃO
 1;20.001.00;1211.90.90;Henna (embalagens de conteúdo inferior ou igual a 200 g);18%;57,51%;T;SEM REDUÇÃO FORNECEDOR;artigo 52, inciso I, do RICMS/SP.
 2;20.002.00;2712.10.00;Vaselina;18%;110,04%;T;SEM REDUÇÃO FORNECEDOR;artigo 52, inciso I, do RICMS/SP.
@@ -304,30 +347,131 @@ const csvDados = `ITEM;CEST;NCM/SH;DESCRIÇÃO;ICMS SAIDA VAREJO;MVA(IVA);PIS_CO
 69;20.064.00;8212.10.20;Aparelhos e lâminas de barbear;18%;43,91%;M;SEM REDUÇÃO FORNECEDOR;artigo 52, inciso I, do RICMS/SP.
 69;20.064.00;8212.20.10;Aparelhos e lâminas de barbear;18%;43,91%;M;SEM REDUÇÃO FORNECEDOR;artigo 52, inciso I, do RICMS/SP.`;
 
-let baseDeDados = [];
-let produtoSelecionado = null;
+// Carregar Usuários Salvos no Navegador
+function carregarUsuariosExtras() {
+    try {
+        const extra = localStorage.getItem('customUsers');
+        if(extra) {
+            const parsed = JSON.parse(extra);
+            CREDENCIAIS = { ...CREDENCIAIS, ...parsed };
+        }
+    } catch(e) {}
+}
+
+// ---------------------------------------------------------
+// STARTUP (Verifica Sessão)
+// ---------------------------------------------------------
+window.onload = function() {
+    carregarUsuariosExtras();
+    if(sessionStorage.getItem('auth_token')) {
+        entrarNoSistema();
+    }
+};
 
 // =================================================================================
-// PROCESSAMENTO DE DADOS
+// 2. SEGURANÇA E LOGIN
 // =================================================================================
-function limparTextoInvisivel(texto) {
-    if (!texto) return "";
-    return texto.replace(/[\u200B-\u200D\uFEFF]/g, '').trim();
+async function hashSenha(senha) {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(senha);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+async function fazerLogin() {
+    const userInput = document.getElementById('user').value.toLowerCase().trim();
+    const passInput = document.getElementById('pass').value.trim(); 
+    const errorMsg = document.getElementById('loginError');
+
+    if (!CREDENCIAIS[userInput]) { errorMsg.style.display = 'block'; return; }
+
+    try {
+        const hashGerado = await hashSenha(passInput);
+        if (hashGerado === CREDENCIAIS[userInput]) {
+            sessionStorage.setItem('auth_token', hashGerado); 
+            entrarNoSistema();
+        } else {
+            errorMsg.innerText = "Usuário ou senha incorretos.";
+            errorMsg.style.display = 'block';
+        }
+    } catch (e) {
+        errorMsg.innerText = "Erro no sistema de criptografia.";
+        errorMsg.style.display = 'block';
+    }
+}
+
+function entrarNoSistema() {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('app-content').style.display = 'block';
+    inicializar(); 
+    renderizarHistorico();
+}
+
+function sairSistema() {
+    sessionStorage.removeItem('auth_token');
+    document.getElementById('app-content').style.display = 'none';
+    document.getElementById('login-screen').style.display = 'flex';
+    document.getElementById('user').value = '';
+    document.getElementById('pass').value = '';
+}
+
+// =================================================================================
+// 3. MODO ANALYST (CADASTRO)
+// =================================================================================
+function checarAdmin() {
+    const val = document.getElementById('user').value.toLowerCase().trim();
+    document.getElementById('adminPanel').style.display = (val === 'analyst') ? 'block' : 'none';
+}
+
+async function registrarUsuario() {
+    const user = document.getElementById('newUsername').value.toLowerCase().trim();
+    const pass = document.getElementById('newPassword').value.trim();
+    if(!user || !pass) return;
+
+    const hash = await hashSenha(pass);
+    let extras = {};
+    try { extras = JSON.parse(localStorage.getItem('customUsers')) || {}; } catch(e){}
+    extras[user] = hash;
+    localStorage.setItem('customUsers', JSON.stringify(extras));
+    carregarUsuariosExtras(); 
+
+    const resultBox = document.getElementById('adminResult');
+    resultBox.style.display = 'block';
+    resultBox.innerText = `Pronto! Já pode logar nesta máquina.\n\nPara salvar no HTML Oficial, adicione esta linha na variável CREDENCIAIS:\n\n"${user}": "${hash}",`;
+    
+    document.getElementById('newUsername').value = "";
+    document.getElementById('newPassword').value = "";
+    mostrarToast("Usuário gerado localmente!", "success");
+}
+
+// =================================================================================
+// 4. ESTRUTURA E TABELA
+// =================================================================================
+let baseDeDados = [];
+let dadosFiltrados = [];
+let produtoSelecionado = null;
+let timeoutPesquisa;
+let paginaAtual = 1;
+const itensPorPagina = 50;
+
+function limparTextoInvisivel(t) { return t ? t.replace(/[\u200B-\u200D\uFEFF]/g, '').trim() : ""; }
+
+function mascaraNCM(ncm) {
+    let num = ncm.replace(/\D/g, '');
+    if(num.length === 8) return num.replace(/^(\d{4})(\d{2})(\d{2})$/, "$1.$2.$3");
+    return ncm;
 }
 
 function lerLinhaCSV(linha) {
-    let colunas = [];
-    let textoAtual = '';
-    let dentroDasAspas = false;
-    const linhaLimpa = limparTextoInvisivel(linha);
-
-    for (let i = 0; i < linhaLimpa.length; i++) {
-        const char = linhaLimpa[i];
-        if (char === '"') { dentroDasAspas = !dentroDasAspas; } 
-        else if (char === ';' && !dentroDasAspas) { colunas.push(textoAtual); textoAtual = ''; } 
-        else { textoAtual += char; }
+    let colunas = [], txt = '', aspas = false;
+    const l = limparTextoInvisivel(linha);
+    for (let i = 0; i < l.length; i++) {
+        if (l[i] === '"') aspas = !aspas; 
+        else if (l[i] === ';' && !aspas) { colunas.push(txt); txt = ''; } 
+        else txt += l[i];
     }
-    colunas.push(textoAtual);
+    colunas.push(txt);
     return colunas;
 }
 
@@ -336,127 +480,122 @@ function inicializar() {
     let mapaCest = {};
 
     for (let i = 1; i < linhas.length; i++) {
-        let linha = linhas[i];
-        if(!linha || linha.trim() === "") continue;
-
-        const col = lerLinhaCSV(linha);
+        if(!linhas[i].trim()) continue;
+        const col = lerLinhaCSV(linhas[i]);
         if (col.length < 5) continue;
 
-        const item = limparTextoInvisivel(col[0]);
         const cest = limparTextoInvisivel(col[1]);
-        const ncm = limparTextoInvisivel(col[2]);
-        const desc = limparTextoInvisivel(col[3]).replace(/^"|"$/g, '');
-
-        const pisCofinsCode = col[6] || "T"; 
-
+        const ncm = mascaraNCM(limparTextoInvisivel(col[2]));
+        
         if (mapaCest[cest]) {
-            if (!mapaCest[cest].ncms.includes(ncm)) {
-                mapaCest[cest].ncms.push(ncm);
-            }
+            if (!mapaCest[cest].ncms.includes(ncm)) mapaCest[cest].ncms.push(ncm);
         } else {
             mapaCest[cest] = {
-                item: item, 
-                cest: cest, 
-                ncms: [ncm], 
-                desc: desc,
-                icms: col[4] || "0%", 
-                mva: col[5] || "0%", 
-                pisCofins: pisCofinsCode, 
-                red: col[7], 
-                leg: col[8]
+                item: limparTextoInvisivel(col[0]), cest: cest, ncms: [ncm],
+                desc: limparTextoInvisivel(col[3]).replace(/^"|"$/g, ''),
+                icms: col[4] || "0%", mva: col[5] || "0%",
+                pisCofins: col[6] || "T", red: col[7], leg: col[8]
             };
         }
     }
     baseDeDados = Object.values(mapaCest);
-    montarTabela(baseDeDados);
+    dadosFiltrados = baseDeDados;
+    mudarPagina(0);
 }
 
-function montarTabela(dados) {
+function renderizarTabela() {
     const body = document.getElementById('tabelaBody');
     body.innerHTML = "";
-    const limiteExibicao = dados.slice(0, 500);
+    
+    const inicio = (paginaAtual - 1) * itensPorPagina;
+    const fim = inicio + itensPorPagina;
+    const lista = dadosFiltrados.slice(inicio, fim);
 
-    limiteExibicao.forEach((d) => {
+    lista.forEach(d => {
         const ncmHtml = d.ncms.map(n => `<span class="ncm-tag">${n}</span>`).join('');
-        let descCurta = d.desc.length > 120 ? d.desc.substring(0, 120) + "..." : d.desc;
-
-        let badgePis = "";
-        if(d.pisCofins === 'M') {
-            badgePis = '<span style="background:#e8f5e9; color:#2e7d32; padding:2px 5px; border-radius:3px; font-size:10px; border:1px solid #c8e6c9;">MONOFÁSICO</span>';
-        } else if(d.pisCofins === 'Z') {
-            badgePis = '<span style="background:#e3f2fd; color:#1565c0; padding:2px 5px; border-radius:3px; font-size:10px; border:1px solid #bbdefb;">ALIQ. ZERO</span>';
-        } else {
-            badgePis = '<span style="background:#ffebee; color:#c62828; padding:2px 5px; border-radius:3px; font-size:10px; border:1px solid #ffcdd2;">TRIBUTADO</span>';
-        }
+        let descCurta = d.desc.length > 90 ? d.desc.substring(0, 90) + "..." : d.desc;
+        let badgePis = (d.pisCofins === 'M') ? '<span style="color:#27ae60; font-size:10px; border:1px solid #27ae60; padding:1px 4px; border-radius:3px;">MONOFÁSICO</span>' 
+                     : (d.pisCofins === 'Z') ? '<span style="color:#2980b9; font-size:10px; border:1px solid #2980b9; padding:1px 4px; border-radius:3px;">ALIQ. ZERO</span>'
+                     : '<span style="color:#c0392b; font-size:10px; border:1px solid #c0392b; padding:1px 4px; border-radius:3px;">TRIBUTADO</span>';
 
         const tr = document.createElement('tr');
         tr.onclick = () => selecionarProduto(d, tr);
-        tr.innerHTML = `
-            <td><strong>${d.item}</strong></td>
-            <td><span class="cest-badge">${d.cest}</span></td>
-            <td><div class="ncm-wrapper">${ncmHtml}</div></td>
-            <td>
-                <div class="desc-text" title="${d.desc}">${descCurta}</div>
-                <div style="margin-top:4px;">${badgePis}</div>
-            </td>
-            <td>${d.icms}</td>
-            <td>${d.mva}</td>
-            <td><div class="leg-text">${d.red || '-'}</div></td>
-        `;
+        tr.innerHTML = `<td><strong>${d.item}</strong></td><td><span class="cest-badge">${d.cest}</span></td>
+            <td>${ncmHtml}</td><td><div title="${d.desc}">${descCurta}</div><div style="margin-top:4px;">${badgePis}</div></td>
+            <td>${d.icms}</td><td>${d.mva}</td><td style="font-size:11px;">${d.red || '-'}</td>`;
         body.appendChild(tr);
     });
-    
-    document.getElementById('status').innerText = `Base carregada: ${limiteExibicao.length} grupos de produtos.`;
+
+    const totalPaginas = Math.ceil(dadosFiltrados.length / itensPorPagina) || 1;
+    document.getElementById('pageInfo').innerText = `Página ${paginaAtual} de ${totalPaginas} (${dadosFiltrados.length} itens)`;
+    document.getElementById('btnPrev').disabled = paginaAtual === 1;
+    document.getElementById('btnNext').disabled = paginaAtual === totalPaginas;
+}
+
+function mudarPagina(direcao) {
+    const total = Math.ceil(dadosFiltrados.length / itensPorPagina) || 1;
+    paginaAtual += direcao;
+    if(paginaAtual < 1) paginaAtual = 1;
+    if(paginaAtual > total) paginaAtual = total;
+    renderizarTabela();
+}
+
+function filtrarDebounce() {
+    clearTimeout(timeoutPesquisa);
+    timeoutPesquisa = setTimeout(filtrar, 300);
 }
 
 function filtrar() {
-    const termo = document.getElementById('searchInput').value.toLowerCase();
-    const filtrados = baseDeDados.filter(d => 
-        d.cest.includes(termo) || 
-        d.desc.toLowerCase().includes(termo) || 
-        d.ncms.some(n => n.includes(termo)) || 
-        d.item.toString().includes(termo)
+    const t = document.getElementById('searchInput').value.toLowerCase();
+    dadosFiltrados = baseDeDados.filter(d => 
+        d.cest.includes(t) || d.desc.toLowerCase().includes(t) || d.ncms.some(n => n.includes(t)) || d.item.toString().includes(t)
     );
-    montarTabela(filtrados);
+    paginaAtual = 1;
+    renderizarTabela();
 }
 
 // =================================================================================
-// LÓGICA DO SIMULADOR
+// 5. SIMULADOR E HISTÓRICO
 // =================================================================================
+function parsePercent(v) { return parseFloat(v?.replace('%', '').replace(',', '.').trim()) || 0; }
+function lerInput(id) { return parseFloat(document.getElementById(id).value?.replace(',', '.')) || 0; }
+function formatarMoeda(v) { return isNaN(v) ? "R$ 0,00" : v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }); }
 
-function parsePercent(valStr) {
-    if(!valStr) return 0;
-    const limpo = valStr.replace('%', '').replace(',', '.').trim();
-    return parseFloat(limpo) || 0;
+function mudarAba(e, abaId) {
+    document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+    document.getElementById(abaId).classList.add('active');
+    e.target.classList.add('active');
 }
 
-function lerInputNumero(id) {
-    let val = document.getElementById(id).value;
-    if (!val) return 0;
-    val = val.replace(',', '.');
-    return parseFloat(val) || 0;
-}
-
-function selecionarProduto(dados, elementoTr) {
+function selecionarProduto(dados, elTr) {
     produtoSelecionado = dados;
     document.querySelectorAll('tr.selected').forEach(tr => tr.classList.remove('selected'));
-    elementoTr.classList.add('selected');
+    if(elTr) elTr.classList.add('selected');
 
-    const painel = document.getElementById('simulador');
-    painel.style.display = "block";
+    document.getElementById('simulador').style.display = "block";
+    document.getElementById('simNomeProduto').innerText = `${dados.item} - ${dados.desc.substring(0, 50)}...`;
     
-    document.getElementById('simNomeProduto').innerText = `${dados.item} - ${dados.desc.substring(0, 60)}...`;
     document.getElementById('inMva').value = dados.mva;
+    let cred = parsePercent(dados.icms);
+    if (dados.red && dados.red.includes("Final 12%")) cred = 12; 
     
-    let creditoSugerido = parsePercent(dados.icms);
-    if (dados.red && dados.red.includes("Final 12%")) { 
-        creditoSugerido = 12; 
-    }
+    document.getElementById('inCredito').value = cred;
+    if(!document.getElementById('inCustoTabela').value) document.getElementById('inCustoTabela').value = "100,00"; 
     
-    document.getElementById('inCredito').value = creditoSugerido;
-    document.getElementById('inCustoTabela').value = "100,00"; 
+    document.getElementById('inInvMva').value = dados.mva;
+    document.getElementById('inInvIcmsSaida').value = dados.icms;
+    document.getElementById('inInvIcmsEntrada').value = cred;
+    if(!document.getElementById('inInvCustoCheio').value) document.getElementById('inInvCustoCheio').value = "150,00";
     
-    calcular();
+    calcular(); calcularInverso(); salvarHistorico(dados);
+}
+
+function limparSimulacao() {
+    document.getElementById('inCustoTabela').value = "";
+    document.getElementById('inDesconto').value = "";
+    document.getElementById('inInvCustoCheio').value = "";
+    calcular(); calcularInverso();
 }
 
 function fecharSimulador() {
@@ -464,156 +603,328 @@ function fecharSimulador() {
     document.querySelectorAll('tr.selected').forEach(tr => tr.classList.remove('selected'));
 }
 
-function calcular() {
-    if (!produtoSelecionado) return;
-
-    // ENTRADAS
-    const custoTabela = lerInputNumero('inCustoTabela');
-    const descontoPct = lerInputNumero('inDesconto');
-    const margem = lerInputNumero('inMargem');
-    const creditoEntradaPct = lerInputNumero('inCredito');
-    
-    const icmsSaidaPct = parsePercent(produtoSelecionado.icms);
-    const mvaPct = parsePercent(produtoSelecionado.mva);
-
-    // DEFINE TAXA PIS/COFINS
-    let taxaPisCofins = 0;
-    if (produtoSelecionado.pisCofins === 'T') {
-        taxaPisCofins = 9.25; // 9.25% padrão se for Tributado
-    }
-
-    // 1. Custo NF (Base Comum)
-    const custoNF = custoTabela * (1 - (descontoPct / 100));
-
-    // =================================================================
-    // CENÁRIO A: REGIME NORMAL
-    // =================================================================
-    const valorCredito = custoNF * (creditoEntradaPct / 100);
-    const custoLiquidoA = custoNF - valorCredito;
-
-    // Preço Venda A: Inclui ICMS Saída + PIS/COFINS + Margem
-    const taxaTotalA = (icmsSaidaPct + taxaPisCofins + margem) / 100;
-    let divisorA = 1 - taxaTotalA;
-    let precoVendaA = 0;
-    
-    if (divisorA > 0.001) {
-        precoVendaA = custoLiquidoA / divisorA;
-    }
-    
-    const debitoIcmsA = precoVendaA * (icmsSaidaPct / 100);
-    const debitoPisA  = precoVendaA * (taxaPisCofins / 100);
-    const debitoTotalA = debitoIcmsA + debitoPisA;
-
-    // PMZ A: Custo / (1 - Impostos). Sem Margem.
-    let divisorPmzA = 1 - ((icmsSaidaPct + taxaPisCofins) / 100);
-    let pmzA = 0;
-    if(divisorPmzA > 0.001) {
-        pmzA = custoLiquidoA / divisorPmzA;
-    }
-
-    // Lucro A
-    let lucroReaisA = precoVendaA - debitoTotalA - custoLiquidoA;
-    let lucroPercentualA = 0;
-    if(precoVendaA > 0) {
-        lucroPercentualA = (lucroReaisA / precoVendaA) * 100;
-    }
-
-    // =================================================================
-    // CENÁRIO B: ST
-    // =================================================================
-    const baseST = custoNF * (1 + (mvaPct / 100));
-    const icmsProprioEntrada = custoNF * (creditoEntradaPct / 100); 
-    
-    let valorST = (baseST * (icmsSaidaPct / 100)) - icmsProprioEntrada;
-    if (valorST < 0) valorST = 0;
-
-    const custoTotalB = custoNF + valorST; 
-
-    // Preço B: CustoTotal / (1 - (Margem + PIS/COFINS))
-    const taxaTotalB = (margem + taxaPisCofins) / 100;
-    let divisorB = 1 - taxaTotalB;
-    let precoVendaB = 0;
-    
-    if (divisorB > 0.001) {
-        precoVendaB = custoTotalB / divisorB;
-    }
-
-    const debitoPisB = precoVendaB * (taxaPisCofins / 100);
-
-    // PMZ B: CustoTotal / (1 - PIS/COFINS)
-    let divisorPmzB = 1 - (taxaPisCofins / 100);
-    let pmzB = 0;
-    if(divisorPmzB > 0.001) {
-        pmzB = custoTotalB / divisorPmzB;
-    }
-
-    // Lucro B
-    let lucroReaisB = precoVendaB - custoTotalB - debitoPisB;
-    let lucroPercentualB = 0;
-    if(precoVendaB > 0) {
-        lucroPercentualB = (lucroReaisB / precoVendaB) * 100;
-    }
-
-    // =================================================================
-    // ATUALIZAR INTERFACE
-    // =================================================================
-
-    // Cenário A
-    document.getElementById('resANota').innerText = formatarMoeda(custoNF);
-    document.getElementById('resACredito').innerText = formatarMoeda(valorCredito);
-    document.getElementById('resACustoLiq').innerText = formatarMoeda(custoLiquidoA);
-    document.getElementById('resAIcmsRate').innerText = icmsSaidaPct + "%";
-    
-    // Mostra PIS se for > 0
-    document.getElementById('resAPisRate').innerText = taxaPisCofins + "%";
-    if(taxaPisCofins > 0) {
-        document.getElementById('resAPisRate').style.color = "#d35400";
-    } else {
-        document.getElementById('resAPisRate').style.color = "#27ae60"; // Verde se for zero
-    }
-
-    document.getElementById('resADebitoTotal').innerText = formatarMoeda(debitoTotalA);
-    document.getElementById('resAPreco').innerText = formatarMoeda(precoVendaA);
-    
-    document.getElementById('resAPMZ').innerText = formatarMoeda(pmzA);
-    document.getElementById('resALucroR').innerText = formatarMoeda(lucroReaisA);
-    document.getElementById('resALucroP').innerText = lucroPercentualA.toFixed(2) + "%";
-
-    document.getElementById('logicA').innerHTML = `
-        <span>Custo Líq. / (1 - (ICMS + PIS/COFINS + Margem))</span>
-        <span>${formatarMoeda(custoLiquidoA)} / ${divisorA.toFixed(4)}</span>
-    `;
-
-    // Cenário B
-    document.getElementById('resBNota').innerText = formatarMoeda(custoNF);
-    document.getElementById('resBBaseST').innerText = formatarMoeda(baseST);
-    document.getElementById('resBValorST').innerText = formatarMoeda(valorST);
-    document.getElementById('resBCustoTotal').innerText = formatarMoeda(custoTotalB);
-    
-    document.getElementById('resBPisRate').innerText = taxaPisCofins + "%";
-    if(taxaPisCofins > 0) document.getElementById('resBPisRate').style.color = "#d35400";
-
-    document.getElementById('resBPreco').innerText = formatarMoeda(precoVendaB);
-
-    document.getElementById('resBPMZ').innerText = formatarMoeda(pmzB);
-    document.getElementById('resBLucroR').innerText = formatarMoeda(lucroReaisB);
-    document.getElementById('resBLucroP').innerText = lucroPercentualB.toFixed(2) + "%";
-
-    document.getElementById('logicB').innerHTML = `
-        <span>Custo Total / (1 - (Margem + PIS/COFINS))</span>
-        <span>${formatarMoeda(custoTotalB)} / ${divisorB.toFixed(2)}</span>
-    `;
+// Histórico com Váriaveis da Simulação
+function getInputsAtuais() {
+    return {
+        custoTab: lerInput('inCustoTabela'),
+        descPct: lerInput('inDesconto'),
+        margem: lerInput('inMargem'),
+        credIn: lerInput('inCredito'),
+        custoCheioInv: lerInput('inInvCustoCheio'),
+        iInInv: lerInput('inInvIcmsEntrada')
+    };
 }
 
-function formatarMoeda(valor) {
-    if(isNaN(valor)) return "R$ 0,00";
-    return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+function salvarHistorico(dados) {
+    let hist = JSON.parse(localStorage.getItem('histSim') || '[]');
+    hist = hist.filter(h => h.cest !== dados.cest); 
+    
+    hist.unshift({ cest: dados.cest, desc: dados.desc, inputs: getInputsAtuais() });
+    if(hist.length > 5) hist.pop();
+    localStorage.setItem('histSim', JSON.stringify(hist));
+    renderizarHistorico();
+}
+
+function atualizarInputsNoHistorico() {
+    if(!produtoSelecionado) return;
+    let hist = JSON.parse(localStorage.getItem('histSim') || '[]');
+    let item = hist.find(h => h.cest === produtoSelecionado.cest);
+    if(item) {
+        item.inputs = getInputsAtuais();
+        localStorage.setItem('histSim', JSON.stringify(hist));
+    }
+}
+
+function renderizarHistorico() {
+    const hist = JSON.parse(localStorage.getItem('histSim') || '[]');
+    const bar = document.getElementById('historyBar');
+    if(hist.length === 0) return;
+    bar.innerHTML = "";
+    hist.forEach(h => {
+        const btn = document.createElement('div');
+        btn.className = 'history-item';
+        btn.innerText = `${h.cest} - ${h.desc.substring(0,15)}...`;
+        btn.onclick = () => {
+            const prod = baseDeDados.find(b => b.cest === h.cest);
+            if(prod) selecionarProduto(prod, null);
+            document.getElementById('simulador').scrollIntoView({behavior: 'smooth'});
+        };
+        bar.appendChild(btn);
+    });
+}
+
+function calcular() {
+    if (!produtoSelecionado) return;
+    const custoTab = lerInput('inCustoTabela'), descPct = lerInput('inDesconto');
+    const margem = lerInput('inMargem'), credIn = lerInput('inCredito');
+    const icmsOut = parsePercent(produtoSelecionado.icms), mva = parsePercent(produtoSelecionado.mva);
+    const taxaPis = (produtoSelecionado.pisCofins === 'T') ? 9.25 : 0;
+    
+    const custoNF = custoTab * (1 - (descPct / 100));
+
+    // Cenario A
+    const valCred = custoNF * (credIn / 100);
+    const custoLiqA = custoNF - valCred;
+    let divA = 1 - ((icmsOut + taxaPis + margem) / 100);
+    let precoA = divA > 0.001 ? (custoLiqA / divA) : 0;
+    const debitoTotA = (precoA * (icmsOut/100)) + (precoA * (taxaPis/100));
+    let pmzA = (1 - ((icmsOut+taxaPis)/100)) > 0 ? (custoLiqA / (1 - ((icmsOut+taxaPis)/100))) : 0;
+    let lucroRA = precoA - debitoTotA - custoLiqA;
+
+    // Cenario B
+    const baseST = custoNF * (1 + (mva / 100));
+    let valST = (baseST * (icmsOut / 100)) - (custoNF * (credIn / 100));
+    if (valST < 0) valST = 0;
+    const custoTotB = custoNF + valST;
+    let divB = 1 - ((margem + taxaPis) / 100);
+    let precoB = divB > 0.001 ? (custoTotB / divB) : 0;
+    let pmzB = (1 - (taxaPis/100)) > 0 ? (custoTotB / (1 - (taxaPis/100))) : 0;
+    let lucroRB = precoB - custoTotB - (precoB * (taxaPis / 100));
+
+    document.getElementById('resANota').innerText = formatarMoeda(custoNF);
+    document.getElementById('resACredito').innerText = formatarMoeda(valCred);
+    document.getElementById('resACustoLiq').innerText = formatarMoeda(custoLiqA);
+    document.getElementById('resAIcmsRate').innerText = icmsOut + "%";
+    document.getElementById('resAPisRate').innerText = taxaPis + "%";
+    document.getElementById('resADebitoTotal').innerText = formatarMoeda(debitoTotA);
+    document.getElementById('resAPreco').innerText = formatarMoeda(precoA);
+    document.getElementById('resAPMZ').innerText = formatarMoeda(pmzA);
+    document.getElementById('resALucroR').innerText = formatarMoeda(lucroRA);
+    document.getElementById('resALucroP').innerText = precoA>0 ? ((lucroRA/precoA)*100).toFixed(2)+"%" : "0%";
+
+    const logicA = document.getElementById('logicA');
+    if(logicA) logicA.innerHTML = `<span>Custo Líq. / (1 - (ICMS + PIS/COFINS + Margem))</span><span>${formatarMoeda(custoLiqA)} / ${divA.toFixed(4)}</span>`;
+
+    document.getElementById('resBNota').innerText = formatarMoeda(custoNF);
+    document.getElementById('resBBaseST').innerText = formatarMoeda(baseST);
+    document.getElementById('resBValorST').innerText = formatarMoeda(valST);
+    document.getElementById('resBCustoTotal').innerText = formatarMoeda(custoTotB);
+    document.getElementById('resBPisRate').innerText = taxaPis + "%";
+    document.getElementById('resBPreco').innerText = formatarMoeda(precoB);
+    document.getElementById('resBPMZ').innerText = formatarMoeda(pmzB);
+    document.getElementById('resBLucroR').innerText = formatarMoeda(lucroRB);
+    document.getElementById('resBLucroP').innerText = precoB>0 ? ((lucroRB/precoB)*100).toFixed(2)+"%" : "0%";
+
+    const logicB = document.getElementById('logicB');
+    if(logicB) logicB.innerHTML = `<span>Custo Total / (1 - (Margem + PIS/COFINS))</span><span>${formatarMoeda(custoTotB)} / ${divB.toFixed(4)}</span>`;
+
+    atualizarInputsNoHistorico();
+}
+
+function calcularInverso() {
+    if (!produtoSelecionado) return;
+    const custoCheio = lerInput('inInvCustoCheio');
+    const mva = parsePercent(produtoSelecionado.mva) / 100;
+    const iOut = parsePercent(produtoSelecionado.icms) / 100;
+    const iIn = lerInput('inInvIcmsEntrada') / 100;
+
+    if(custoCheio <= 0) {
+        document.getElementById('resInvBase').innerText = "R$ 0,00"; document.getElementById('resInvST').innerText = "R$ 0,00"; return;
+    }
+    
+    const fatorST = ((1 + mva) * iOut) - iIn;
+    let cBase = custoCheio / (1 + fatorST);
+    let vST = 0;
+    
+    if ((cBase * fatorST) < 0) { cBase = custoCheio; vST = 0; } 
+    else { vST = custoCheio - cBase; }
+
+    document.getElementById('resInvBase').innerText = formatarMoeda(cBase);
+    document.getElementById('resInvST').innerText = formatarMoeda(vST);
+
+    const logicInv = document.getElementById('logicInv');
+    if(logicInv) logicInv.innerHTML = `<span>Custo Base = Custo Bruto / { 1 + [ (1 + MVA) * Alíq. Saída - Alíq. Entrada ] }</span><span>${formatarMoeda(custoCheio)} / ${(1+fatorST).toFixed(4)}</span>`;
+
+    atualizarInputsNoHistorico();
+}
+
+// =================================================================================
+// 6. EXPORTAÇÕES (CSV E PDF AVANÇADO)
+// =================================================================================
+function mostrarToast(msg, tipo="success") {
+    const container = document.getElementById('toastContainer');
+    const toast = document.createElement('div');
+    toast.className = `toast ${tipo}`;
+    toast.innerHTML = tipo==='success' ? `✅ ${msg}` : `ℹ️ ${msg}`;
+    container.appendChild(toast);
+    setTimeout(() => toast.remove(), 3000);
+}
+
+function exportarCSV() {
+    const blob = new Blob(["\uFEFF" + csvDados], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "base_sistema.csv";
+    link.click();
+    mostrarToast("CSV exportado com sucesso!", "success");
+}
+
+function toggleDarkMode() {
+    const root = document.documentElement;
+    const isDark = root.getAttribute("data-theme") === "dark";
+    root.setAttribute("data-theme", isDark ? "light" : "dark");
+}
+
+// FUNÇÕES DE PDF REFORMULADAS
+function gerarPDFSimulacao() {
+    if (!produtoSelecionado) return;
+    gerarDocumentoPDFBuilder([{ prod: produtoSelecionado, inputs: getInputsAtuais() }], `Simulacao_${produtoSelecionado.cest}`);
+}
+
+function gerarPDFHistorico() {
+    let hist = JSON.parse(localStorage.getItem('histSim') || '[]');
+    if (hist.length === 0) { mostrarToast("Histórico vazio.", "error"); return; }
+    
+    let listaExport = [];
+    hist.forEach(h => {
+        const prodFull = baseDeDados.find(b => b.cest === h.cest);
+        if(prodFull) listaExport.push({ prod: prodFull, inputs: h.inputs });
+    });
+    
+    if (listaExport.length > 0) gerarDocumentoPDFBuilder(listaExport, "Historico_Simulacoes");
+}
+
+// Construtor do PDF (Refaz todos os calculos para garantir dados fieis no momento da exportação)
+function gerarDocumentoPDFBuilder(listaExport, tituloArquivo) {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+
+    listaExport.forEach((item, index) => {
+        if (index > 0) doc.addPage();
+
+        const prod = item.prod;
+        const inp = item.inputs || { custoTab: 100, descPct: 0, margem: 40, credIn: 12, custoCheioInv: 150, iInInv: 12 };
+        
+        // Refaz Calculo Cenario A e B
+        const icmsOut = parsePercent(prod.icms), mva = parsePercent(prod.mva);
+        const taxaPis = (prod.pisCofins === 'T') ? 9.25 : 0;
+        const custoNF = inp.custoTab * (1 - (inp.descPct / 100));
+        
+        const valCred = custoNF * (inp.credIn / 100);
+        const custoLiqA = custoNF - valCred;
+        let divA = 1 - ((icmsOut + taxaPis + inp.margem) / 100);
+        let precoA = divA > 0.001 ? (custoLiqA / divA) : 0;
+        const debitoTotA = (precoA * (icmsOut/100)) + (precoA * (taxaPis/100));
+        let pmzA = (1 - ((icmsOut+taxaPis)/100)) > 0 ? (custoLiqA / (1 - ((icmsOut+taxaPis)/100))) : 0;
+        let lucroRA = precoA - debitoTotA - custoLiqA;
+        let lucroPA = precoA>0 ? ((lucroRA/precoA)*100) : 0;
+
+        const baseST = custoNF * (1 + (mva / 100));
+        let valST = (baseST * (icmsOut / 100)) - (custoNF * (inp.credIn / 100));
+        if (valST < 0) valST = 0;
+        const custoTotB = custoNF + valST;
+        let divB = 1 - ((inp.margem + taxaPis) / 100);
+        let precoB = divB > 0.001 ? (custoTotB / divB) : 0;
+        let pmzB = (1 - (taxaPis/100)) > 0 ? (custoTotB / (1 - (taxaPis/100))) : 0;
+        let lucroRB = precoB - custoTotB - (precoB * (taxaPis / 100));
+        let lucroPB = precoB>0 ? ((lucroRB/precoB)*100) : 0;
+
+        // Refaz Calculo Inverso
+        const fatorST = ((1 + (mva/100)) * (icmsOut/100)) - (inp.iInInv/100);
+        let cBase = inp.custoCheioInv / (1 + fatorST);
+        let vST = 0;
+        if ((cBase * fatorST) < 0) { cBase = inp.custoCheioInv; vST = 0; } else { vST = inp.custoCheioInv - cBase; }
+
+        // ----- DESENHO DO PDF -----
+        // Header
+        doc.setFillColor(44, 62, 80);
+        doc.rect(0, 0, 210, 20, 'F');
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(14); doc.setFont(undefined, 'bold');
+        doc.text("Analyst Gestão - Relatório de Simulação", 15, 13);
+
+        // Info Produto
+        doc.setTextColor(51, 51, 51); doc.setFontSize(10);
+        doc.text(`Item: ${prod.item}`, 15, 30);
+        doc.text(`CEST: ${prod.cest}`, 70, 30);
+        doc.text(`NCM: ${prod.ncms.join(', ')}`, 130, 30);
+        
+        doc.setFont(undefined, 'normal');
+        const descLines = doc.splitTextToSize(`Descrição: ${prod.desc}`, 180);
+        doc.text(descLines, 15, 38);
+        let y = 38 + (descLines.length * 5) + 5;
+
+        // ABA 1
+        doc.setFontSize(12); doc.setFont(undefined, 'bold');
+        doc.setTextColor(41, 128, 185);
+        doc.text("FORMAÇÃO DE PREÇO (Cenário 1 e 2)", 15, y); y += 6;
+        
+        doc.setFontSize(9); doc.setTextColor(100, 100, 100);
+        doc.text(`Preço Tabela: R$ ${inp.custoTab.toFixed(2)} | Desconto: ${inp.descPct}% | Margem: ${inp.margem}% | Créd. Ent.: ${inp.credIn}% | MVA: ${prod.mva}`, 15, y); y += 8;
+
+        // Caixa Cenário 1
+        doc.setDrawColor(200, 200, 200);
+        doc.setFillColor(241, 248, 233);
+        doc.rect(15, y, 85, 75, 'FD');
+        doc.setFont(undefined, 'bold'); doc.setTextColor(46, 125, 50);
+        doc.text("Cenário 1: Regime Normal", 20, y + 8);
+
+        doc.setFont(undefined, 'normal'); doc.setTextColor(51, 51, 51);
+        let yA = y + 16;
+        doc.text(`Custo Nota: ${formatarMoeda(custoNF)}`, 20, yA); yA += 6;
+        doc.text(`(-) Créd. Entrada: ${formatarMoeda(valCred)}`, 20, yA); yA += 6;
+        doc.text(`= Custo Líquido: ${formatarMoeda(custoLiqA)}`, 20, yA); yA += 6;
+        doc.text(`Alíq. Saída: ${prod.icms}`, 20, yA); yA += 6;
+        doc.text(`PIS/COFINS: ${taxaPis}%`, 20, yA); yA += 6;
+        doc.text(`(-) Impostos: ${formatarMoeda(debitoTotA)}`, 20, yA); yA += 8;
+        
+        doc.setFont(undefined, 'bold');
+        doc.text(`Preço Sugerido: ${formatarMoeda(precoA)}`, 20, yA); yA += 8;
+        doc.text(`PMZ: ${formatarMoeda(pmzA)}`, 20, yA); yA += 6;
+        doc.setTextColor(39, 174, 96);
+        doc.text(`Lucro Líq: ${formatarMoeda(lucroRA)} (${lucroPA.toFixed(2)}%)`, 20, yA);
+
+        // Caixa Cenário 2
+        doc.setFillColor(243, 229, 245);
+        doc.rect(105, y, 85, 75, 'FD');
+        doc.setFont(undefined, 'bold'); doc.setTextColor(142, 68, 173);
+        doc.text("Cenário 2: Com ST", 110, y + 8);
+
+        doc.setFont(undefined, 'normal'); doc.setTextColor(51, 51, 51);
+        let yB = y + 16;
+        doc.text(`Custo Nota: ${formatarMoeda(custoNF)}`, 110, yB); yB += 6;
+        doc.text(`Base Calc ST: ${formatarMoeda(baseST)}`, 110, yB); yB += 6;
+        doc.text(`(+) ST Pagar: ${formatarMoeda(valST)}`, 110, yB); yB += 6;
+        doc.text(`= Custo Total: ${formatarMoeda(custoTotB)}`, 110, yB); yB += 6;
+        doc.text(`PIS/COFINS: ${taxaPis}%`, 110, yB); yB += 14;
+
+        doc.setFont(undefined, 'bold');
+        doc.text(`Preço Sugerido (ST): ${formatarMoeda(precoB)}`, 110, yB); yB += 8;
+        doc.text(`PMZ: ${formatarMoeda(pmzB)}`, 110, yB); yB += 6;
+        doc.setTextColor(39, 174, 96);
+        doc.text(`Lucro Líq: ${formatarMoeda(lucroRB)} (${lucroPB.toFixed(2)}%)`, 110, yB);
+
+        y += 90;
+
+        // ABA 2
+        doc.setFontSize(12); doc.setFont(undefined, 'bold');
+        doc.setTextColor(230, 126, 34);
+        doc.text("CÁLCULO INVERSO (Extração de ST)", 15, y); y += 6;
+        
+        doc.setFontSize(9); doc.setTextColor(100, 100, 100);
+        doc.text(`Custo Bruto (ST): R$ ${inp.custoCheioInv.toFixed(2)} | MVA: ${prod.mva} | ICMS Saída: ${prod.icms} | ICMS Ent.: ${inp.iInInv}%`, 15, y); y += 8;
+
+        doc.setFillColor(255, 243, 224);
+        doc.rect(15, y, 175, 25, 'FD');
+
+        doc.setFontSize(11); doc.setTextColor(51, 51, 51);
+        doc.text("Custo Original (Sem ST)", 35, y + 10);
+        doc.setFont(undefined, 'bold'); doc.setTextColor(46, 125, 50);
+        doc.setFontSize(14); doc.text(formatarMoeda(cBase), 35, y + 18);
+
+        doc.setFontSize(14); doc.setTextColor(200, 200, 200);
+        doc.text("+", 100, y + 15);
+
+        doc.setFontSize(11); doc.setTextColor(51, 51, 51);
+        doc.text("Valor da ST Embutida", 130, y + 10);
+        doc.setFont(undefined, 'bold'); doc.setTextColor(142, 68, 173);
+        doc.setFontSize(14); doc.text(formatarMoeda(vST), 130, y + 18);
+    });
+
+    doc.save(`${tituloArquivo}.pdf`);
+    mostrarToast("PDF gerado com sucesso!", "success");
 }
 
 </script>
 </body>
 </html>
-
-
-
-
