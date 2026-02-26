@@ -24,7 +24,7 @@
         .top-bar { background-color: var(--primary); color: white; text-align: center; padding: 8px; font-size: 12px; font-weight: bold; letter-spacing: 1px; }
 
         /* Login Screen */
-        #login-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%); display: flex; justify-content: center; align-items: center; z-index: 9999; flex-direction: column; }
+        #login-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%); display: flex; justify-content: center; align-items: center; z-index: 9999; flex-direction: column; overflow-y: auto; padding: 20px;}
         .login-box { background: var(--panel-bg); padding: 40px; border-radius: 10px; box-shadow: 0 15px 30px rgba(0,0,0,0.5); width: 100%; max-width: 350px; text-align: center; color: var(--text-main); transition: all 0.3s; }
         .login-box h2 { margin-top: 0; margin-bottom: 20px; }
         .login-input { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid var(--border-color); border-radius: 5px; font-size: 16px; box-sizing: border-box; background: var(--bg); color: var(--text-main); }
@@ -32,10 +32,12 @@
         .btn-login:hover { background-color: #1a5276; }
         .error-msg { color: #e74c3c; font-size: 13px; margin-top: 10px; display: none; font-weight: bold; }
         
-        /* Painel Admin Analyst */
-        #adminPanel { display: none; background: rgba(0,0,0,0.05); padding: 15px; border-radius: 8px; margin-top: 20px; border: 1px dashed var(--secondary); text-align: left;}
-        #adminPanel h4 { margin-top: 0; color: var(--secondary); font-size: 14px; text-transform: uppercase;}
-        .code-box { background: #2d2d2d; color: #a6e22e; padding: 10px; font-family: monospace; font-size: 11px; border-radius: 4px; margin-top: 10px; word-break: break-all; display: none; border-left: 3px solid var(--accent);}
+        /* Painel Registro */
+        #registerPanel { display: none; margin-top: 20px; border-top: 1px dashed var(--border-color); padding-top: 20px; text-align: left; }
+        #registerPanel h4 { margin-top: 0; color: var(--secondary); font-size: 15px; margin-bottom: 5px;}
+        .code-box { background: #2d2d2d; color: #a6e22e; padding: 10px; font-family: monospace; font-size: 11px; border-radius: 4px; margin-top: 10px; word-break: break-all; display: none; border-left: 3px solid var(--accent); text-align: center;}
+        .btn-wa { background-color: #25D366; color: white; }
+        .btn-wa:hover { filter: brightness(0.9); }
 
         #app-content { display: none; padding: 20px; max-width: 1600px; margin: 0 auto; }
         .header-controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
@@ -45,8 +47,13 @@
         /* Histórico Recente */
         .history-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
         .history-bar { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 15px; }
-        .history-item { background: var(--panel-bg); border: 1px solid var(--border-color); padding: 5px 12px; border-radius: 15px; font-size: 11px; cursor: pointer; white-space: nowrap; font-weight: bold; color: var(--secondary); }
+        .history-item { background: var(--panel-bg); border: 1px solid var(--border-color); padding: 5px 12px; border-radius: 15px; font-size: 11px; cursor: pointer; white-space: nowrap; font-weight: bold; color: var(--secondary); display: flex; align-items: center; gap: 8px; transition: 0.2s;}
         .history-item:hover { background: var(--secondary); color: white; }
+        .history-item span { pointer-events: none; }
+        .remove-hist { background: rgba(231, 76, 60, 0.1); color: #e74c3c; border: none; border-radius: 50%; width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-weight: bold; font-size: 12px; padding: 0; transition: 0.2s; pointer-events: auto;}
+        .remove-hist:hover { background: #e74c3c; color: white; transform: scale(1.1); }
+        .history-item:hover .remove-hist { background: rgba(255,255,255,0.2); color: white;}
+        .history-item:hover .remove-hist:hover { background: white; color: #e74c3c;}
 
         .simulator-panel { background: var(--panel-bg); padding: 20px; border-radius: 8px; box-shadow: 0 4px 25px rgba(0,0,0,0.1); margin-bottom: 25px; border-top: 5px solid var(--accent); display: none; animation: slideDown 0.3s ease-out; position: sticky; top: 10px; z-index: 100; }
         @keyframes slideDown { from { opacity: 0; transform: translateY(-15px); } to { opacity: 1; transform: translateY(0); } }
@@ -107,6 +114,16 @@
         @keyframes slideIn { to { opacity: 1; transform: translateX(0); } }
         @keyframes fadeOut { to { opacity: 0; transform: translateX(100%); } }
 
+        /* MODAL TUTORIAL */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: none; justify-content: center; align-items: center; z-index: 10000; }
+        .modal-content { background: var(--panel-bg); color: var(--text-main); width: 90%; max-width: 650px; max-height: 85vh; overflow-y: auto; padding: 30px; border-radius: 8px; box-shadow: 0 10px 40px rgba(0,0,0,0.5); position: relative; animation: fadeIn 0.3s; }
+        .modal-content h3 { color: var(--primary); margin-top: 0; border-bottom: 2px solid var(--border-color); padding-bottom: 10px; font-size: 22px; }
+        .modal-content h4 { color: var(--secondary); margin-bottom: 5px; font-size: 16px; margin-top: 20px; }
+        .modal-content p, .modal-content li { font-size: 14px; line-height: 1.6; margin-bottom: 10px; }
+        .modal-content ol { margin-top: 5px; padding-left: 20px; }
+        .close-modal { position: absolute; top: 15px; right: 20px; font-size: 28px; cursor: pointer; color: #999; border: none; background: transparent; }
+        .close-modal:hover { color: #e74c3c; }
+
     </style>
 </head>
 <body>
@@ -115,26 +132,76 @@
     <div id="login-screen">
         <div class="login-box">
             <h2>Acesso Restrito</h2>
-            <input type="text" id="user" class="login-input" placeholder="Usuário" oninput="checarAdmin()">
+            <input type="text" id="user" class="login-input" placeholder="Usuário">
             <input type="password" id="pass" class="login-input" placeholder="Senha" onkeyup="if(event.key === 'Enter') fazerLogin()">
             <button class="btn-login" onclick="fazerLogin()">ENTRAR</button>
             <div id="loginError" class="error-msg">Usuário ou senha incorretos.</div>
             <div style="margin-top: 15px; font-size: 11px; color: #888;">Sistema Protegido SHA-256</div>
 
-            <div id="adminPanel">
-                <h4>🛠️ Modo Analyst - Novo Usuário</h4>
-                <input type="text" id="newUsername" class="login-input" placeholder="Nome do novo usuário" style="padding:8px; margin-bottom:8px;">
-                <input type="password" id="newPassword" class="login-input" placeholder="Senha do novo usuário" style="padding:8px; margin-bottom:8px;">
-                <button class="btn-action" style="width:100%; background:var(--accent);" onclick="registrarUsuario()">Cadastrar Localmente & Gerar Código</button>
+            <div id="registerPanel">
+                <h4>Novo por aqui? Cadastre-se</h4>
+                <p style="font-size:12px; color:#888; margin-bottom:10px;">Crie seu usuário e envie a chave gerada para o grupo Fiscal da Analyst solicitar liberação.</p>
+                <input type="text" id="newUsername" class="login-input" placeholder="Escolha um Usuário" style="padding:8px; margin-bottom:8px;">
+                <input type="password" id="newPassword" class="login-input" placeholder="Escolha uma Senha" style="padding:8px; margin-bottom:8px;">
+                <button class="btn-action" style="width:100%; background:var(--accent);" onclick="registrarUsuario()">1. Gerar Chave de Acesso</button>
+                
                 <div id="adminResult" class="code-box"></div>
+                
+                <div id="regActions" style="display:none; flex-direction:column; gap:8px; margin-top:10px;">
+                    <button class="btn-action" style="width:100%; background:#7f8c8d;" onclick="copiarChave()">📋 2. Copiar Chave</button>
+                    <button class="btn-action btn-wa" style="width:100%;" onclick="enviarWhatsApp()">💬 3. Enviar no WhatsApp Analyst</button>
+                </div>
             </div>
+        </div>
+    </div>
+
+    <div id="tutorialModal" class="modal-overlay">
+        <div class="modal-content">
+            <button class="close-modal" onclick="fecharTutorial()">&times;</button>
+            <h3>📘 Guia Rápido: Como utilizar o Simulador</h3>
+            <p>Bem-vindo ao Catálogo Tributário da <strong>Analyst Gestão Empresarial</strong>. Este sistema foi criado para dar a você total clareza sobre os impostos e garantir as melhores negociações com seus fornecedores.</p>
+            
+            <h4>Passo 1: Selecione o Produto</h4>
+            <p>Na tela inicial, use a barra de pesquisa para encontrar a mercadoria desejada (por NCM, CEST ou Descrição). <strong>Clique em cima do item</strong> na tabela para habilitar o Simulador Integrado.</p>
+            
+            <h4>Passo 2: Conheça as Abas de Simulação</h4>
+            <p>Com o simulador aberto, você notará duas abas principais:</p>
+            <ul>
+                <li><strong>Formação de Preço:</strong> Para calcular as margens, os lucros e descobrir o preço ideal de venda nos diferentes cenários.</li>
+                <li><strong>Cálculo Inverso (Extrair ST):</strong> Para descobrir o valor real de um produto quando o fornecedor repassa a você apenas o preço final já com o imposto embutido.</li>
+            </ul>
+
+            <h4>Passo 3: Descobrindo o preço sem ST (Cálculo Inverso)</h4>
+            <p>Se você já adquiriu a mercadoria (ou recebeu uma cotação) e quer saber qual é o valor base dela <em>sem</em> a Substituição Tributária:</p>
+            <ol>
+                <li>Clique na aba <strong>Cálculo Inverso (Extrair ST)</strong>.</li>
+                <li>Digite o valor final que te passaram no campo <strong>Custo Bruto (COM ST) R$</strong>.</li>
+                <li>O sistema vai mostrar em <strong style="color: #27ae60;">verde</strong> o Custo Original (SEM ST) e, ao lado, o valor exato da ST que estava escondida na nota.</li>
+                <li><strong>Dica:</strong> Clique no botão <em>"🔄 Usar na Simulação"</em> abaixo do valor verde para enviá-lo automaticamente para a aba de Formação de Preço.</li>
+            </ol>
+
+            <h4>Passo 4: Simulando Cenários para Negociação</h4>
+            <p>Agora que você sabe o custo real da mercadoria:</p>
+            <ol>
+                <li>Na aba <strong>Formação de Preço</strong>, o valor já estará preenchido no campo <strong>1. Preço Tabela (R$)</strong>.</li>
+                <li>O sistema gera dois cenários na tela: <strong>Cenário 1 (Regime Normal)</strong> e <strong>Cenário 2 (Com ST)</strong>.</li>
+            </ol>
+            
+            <p style="background: rgba(41, 128, 185, 0.1); padding: 10px; border-left: 4px solid var(--secondary); margin-top: 15px;">
+                🎯 <strong>Dica de Negociação:</strong> Com esses números na mão, você descobre qual é o preço que o fornecedor deveria estar enviando na nota fiscal. Isso te dá argumentos sólidos para questionar divergências, evitar pagar impostos duplicados e negociar de forma inteligente.
+            </p>
+            
+            <p style="text-align: center; margin-top: 20px; font-size: 13px; color: #888;">
+                <em>Deseja comprovar esses números? Basta clicar no botão <strong>"📄 Salvar PDF"</strong> no simulador para baixar e enviar o relatório de análise completo!</em>
+            </p>
         </div>
     </div>
 
     <div id="app-content">
         <div class="header-controls">
             <h1 style="color: var(--primary); margin: 0;">Catálogo Tributário</h1>
-            <div style="display: flex; gap: 10px;">
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <button class="btn-action" style="background-color: #f39c12;" onclick="abrirTutorial()">📖 Como Usar</button>
                 <button class="btn-action" style="background-color: #34495e;" onclick="toggleDarkMode()">🌙 Modo Escuro</button>
                 <button class="btn-action" style="background-color: var(--accent);" onclick="exportarCSV()">📥 Exportar CSV</button>
                 <button class="btn-action" style="background-color: #e74c3c;" onclick="sairSistema()">🚪 Sair</button>
@@ -163,7 +230,7 @@
             </div>
 
             <div class="tabs">
-                <button class="tab-btn active" onclick="mudarAba(event, 'tab-formacao')">Formação de Preço</button>
+                <button class="tab-btn active" id="btn-tab-formacao" onclick="mudarAba(event, 'tab-formacao')">Formação de Preço</button>
                 <button class="tab-btn" onclick="mudarAba(event, 'tab-inverso')">Cálculo Inverso (Extrair ST)</button>
             </div>
 
@@ -222,9 +289,16 @@
                     <div class="scenario-box scenario-inverso">
                         <div class="scenario-title">Resultado da Extração de ST</div>
                         <div style="display:flex; justify-content:space-around; align-items:center; flex-wrap:wrap; padding: 10px 0;">
-                            <div style="text-align:center;"><span style="display:block; font-size:12px; color:#888;">Custo Original (SEM ST)</span><strong id="resInvBase" style="font-size:24px; color:var(--accent);">R$ 0,00</strong></div>
+                            <div style="text-align:center;">
+                                <span style="display:block; font-size:12px; color:#888;">Custo Original (SEM ST)</span>
+                                <strong id="resInvBase" style="font-size:24px; color:var(--accent); display:block; margin-bottom: 5px;">R$ 0,00</strong>
+                                <button class="btn-action" style="font-size: 11px; padding: 5px 10px; background-color: var(--secondary);" onclick="sincronizarCusto()">🔄 Usar na Simulação</button>
+                            </div>
                             <div style="font-size: 24px; color: #ccc;">+</div>
-                            <div style="text-align:center;"><span style="display:block; font-size:12px; color:#888;">Valor da ST Embutida</span><strong id="resInvST" style="font-size:24px; color:var(--st-color);">R$ 0,00</strong></div>
+                            <div style="text-align:center;">
+                                <span style="display:block; font-size:12px; color:#888;">Valor da ST Embutida</span>
+                                <strong id="resInvST" style="font-size:24px; color:var(--st-color);">R$ 0,00</strong>
+                            </div>
                         </div>
                         <div class="calc-logic" id="logicInv" style="text-align:center; margin-top:10px;"></div>
                     </div>
@@ -259,8 +333,7 @@
 // 1. DADOS E CREDENCIAIS
 // =================================================================================
 let CREDENCIAIS = {
-    "alessandro": "2bd195d5b3ae20af56e1ca979130bcfa7ec1662a2c7224c1ebb25f88c2d6bb4f",
-	"henrique": "2bd195d5b3ae20af56e1ca979130bcfa7ec1662a2c7224c1ebb25f88c2d6bb4f",
+    "henrique": "2bd195d5b3ae20af56e1ca979130bcfa7ec1662a2c7224c1ebb25f88c2d6bb4f",
     "rodolfo": "f10c815242d5323aa6230f78ddc4c2206789999175fa39195ffb47bb7bece612",
     "cintra": "a3dfa8378692399f45823a1b1517f170dc45e07a40150b30ffe86278ab579073",
     "lucassup": "f7f85e1e4c7820f2d715c128736a9debd54ca28f796e825672b04a94f94c37b0",
@@ -347,6 +420,16 @@ const csvDados = `ITEM;CEST;NCM/SH;DESCRIÇÃO;ICMS SAIDA VAREJO;MVA(IVA);PIS_CO
 69;20.064.00;8212.10.20;Aparelhos e lâminas de barbear;18%;43,91%;M;SEM REDUÇÃO FORNECEDOR;artigo 52, inciso I, do RICMS/SP.
 69;20.064.00;8212.20.10;Aparelhos e lâminas de barbear;18%;43,91%;M;SEM REDUÇÃO FORNECEDOR;artigo 52, inciso I, do RICMS/SP.`;
 
+// ---------------------------------------------------------
+// Funções do Modal de Tutorial
+// ---------------------------------------------------------
+function abrirTutorial() {
+    document.getElementById('tutorialModal').style.display = 'flex';
+}
+function fecharTutorial() {
+    document.getElementById('tutorialModal').style.display = 'none';
+}
+
 // Carregar Usuários Salvos no Navegador
 function carregarUsuariosExtras() {
     try {
@@ -369,8 +452,11 @@ window.onload = function() {
 };
 
 // =================================================================================
-// 2. SEGURANÇA E LOGIN
+// 2. SEGURANÇA E LOGIN / REGISTRO
 // =================================================================================
+let chaveGeradaTemp = "";
+let usuarioGeradoTemp = "";
+
 async function hashSenha(senha) {
     const encoder = new TextEncoder();
     const data = encoder.encode(senha);
@@ -383,8 +469,17 @@ async function fazerLogin() {
     const userInput = document.getElementById('user').value.toLowerCase().trim();
     const passInput = document.getElementById('pass').value.trim(); 
     const errorMsg = document.getElementById('loginError');
+    const regPanel = document.getElementById('registerPanel');
 
-    if (!CREDENCIAIS[userInput]) { errorMsg.style.display = 'block'; return; }
+    if (!userInput) return;
+
+    if (!CREDENCIAIS[userInput]) { 
+        errorMsg.innerText = "Usuário não encontrado. Crie seu acesso abaixo.";
+        errorMsg.style.display = 'block';
+        regPanel.style.display = 'block';
+        document.getElementById('newUsername').value = userInput;
+        return; 
+    }
 
     try {
         const hashGerado = await hashSenha(passInput);
@@ -392,13 +487,53 @@ async function fazerLogin() {
             sessionStorage.setItem('auth_token', hashGerado); 
             entrarNoSistema();
         } else {
-            errorMsg.innerText = "Usuário ou senha incorretos.";
+            errorMsg.innerText = "Senha incorreta.";
             errorMsg.style.display = 'block';
         }
     } catch (e) {
         errorMsg.innerText = "Erro no sistema de criptografia.";
         errorMsg.style.display = 'block';
     }
+}
+
+async function registrarUsuario() {
+    const user = document.getElementById('newUsername').value.toLowerCase().trim();
+    const pass = document.getElementById('newPassword').value.trim();
+    if(!user || !pass) {
+        mostrarToast("Preencha usuário e senha.", "error");
+        return;
+    }
+
+    const hash = await hashSenha(pass);
+    chaveGeradaTemp = hash;
+    usuarioGeradoTemp = user;
+    
+    // Salva Localmente
+    let extras = {};
+    try { extras = JSON.parse(localStorage.getItem('customUsers')) || {}; } catch(e){}
+    extras[user] = hash;
+    localStorage.setItem('customUsers', JSON.stringify(extras));
+    carregarUsuariosExtras(); 
+
+    const resultBox = document.getElementById('adminResult');
+    resultBox.style.display = 'block';
+    resultBox.innerText = `Chave: ${hash}`;
+    
+    document.getElementById('regActions').style.display = 'flex';
+    mostrarToast("Chave gerada! Você já pode logar.", "success");
+}
+
+function copiarChave() {
+    const texto = `Solicitação de Acesso ao Simulador\nUsuário: ${usuarioGeradoTemp}\nChave: ${chaveGeradaTemp}`;
+    navigator.clipboard.writeText(texto).then(() => {
+        mostrarToast("Chave copiada com sucesso!", "success");
+    });
+}
+
+function enviarWhatsApp() {
+    const texto = `Olá equipe Fiscal da Analyst! Gostaria de solicitar a liberação do meu usuário no Simulador Tributário.\n\n*Usuário:* ${usuarioGeradoTemp}\n*Chave:* ${chaveGeradaTemp}`;
+    const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(texto)}`;
+    window.open(url, '_blank');
 }
 
 function entrarNoSistema() {
@@ -414,35 +549,16 @@ function sairSistema() {
     document.getElementById('login-screen').style.display = 'flex';
     document.getElementById('user').value = '';
     document.getElementById('pass').value = '';
+    document.getElementById('registerPanel').style.display = 'none';
+    document.getElementById('regActions').style.display = 'none';
+    document.getElementById('adminResult').style.display = 'none';
 }
 
-// =================================================================================
-// 3. MODO ANALYST (CADASTRO)
-// =================================================================================
 function checarAdmin() {
     const val = document.getElementById('user').value.toLowerCase().trim();
-    document.getElementById('adminPanel').style.display = (val === 'analyst') ? 'block' : 'none';
-}
-
-async function registrarUsuario() {
-    const user = document.getElementById('newUsername').value.toLowerCase().trim();
-    const pass = document.getElementById('newPassword').value.trim();
-    if(!user || !pass) return;
-
-    const hash = await hashSenha(pass);
-    let extras = {};
-    try { extras = JSON.parse(localStorage.getItem('customUsers')) || {}; } catch(e){}
-    extras[user] = hash;
-    localStorage.setItem('customUsers', JSON.stringify(extras));
-    carregarUsuariosExtras(); 
-
-    const resultBox = document.getElementById('adminResult');
-    resultBox.style.display = 'block';
-    resultBox.innerText = `Pronto! Já pode logar nesta máquina.\n\nPara salvar no HTML Oficial, adicione esta linha na variável CREDENCIAIS:\n\n"${user}": "${hash}",`;
-    
-    document.getElementById('newUsername').value = "";
-    document.getElementById('newPassword').value = "";
-    mostrarToast("Usuário gerado localmente!", "success");
+    if(val === 'analyst') {
+        document.getElementById('registerPanel').style.display = 'block';
+    }
 }
 
 // =================================================================================
@@ -511,12 +627,17 @@ function renderizarTabela() {
     const fim = inicio + itensPorPagina;
     const lista = dadosFiltrados.slice(inicio, fim);
 
+    const tooltipM = "PIS/COFINS Monofásico: Tributação concentrada na indústria. Não gera crédito na entrada para revenda.";
+    const tooltipZ = "PIS/COFINS Alíquota Zero: Produto desonerado. Não permite crédito na entrada.";
+    const tooltipT = "PIS/COFINS Tributado: Tributação normal. Permite crédito na entrada (no regime Não Cumulativo / Lucro Real).";
+
     lista.forEach(d => {
         const ncmHtml = d.ncms.map(n => `<span class="ncm-tag">${n}</span>`).join('');
         let descCurta = d.desc.length > 90 ? d.desc.substring(0, 90) + "..." : d.desc;
-        let badgePis = (d.pisCofins === 'M') ? '<span style="color:#27ae60; font-size:10px; border:1px solid #27ae60; padding:1px 4px; border-radius:3px;">MONOFÁSICO</span>' 
-                     : (d.pisCofins === 'Z') ? '<span style="color:#2980b9; font-size:10px; border:1px solid #2980b9; padding:1px 4px; border-radius:3px;">ALIQ. ZERO</span>'
-                     : '<span style="color:#c0392b; font-size:10px; border:1px solid #c0392b; padding:1px 4px; border-radius:3px;">TRIBUTADO</span>';
+        
+        let badgePis = (d.pisCofins === 'M') ? `<span title="${tooltipM}" style="color:#27ae60; font-size:10px; border:1px solid #27ae60; padding:1px 4px; border-radius:3px; cursor:help;">MONOFÁSICO</span>` 
+                     : (d.pisCofins === 'Z') ? `<span title="${tooltipZ}" style="color:#2980b9; font-size:10px; border:1px solid #2980b9; padding:1px 4px; border-radius:3px; cursor:help;">ALIQ. ZERO</span>`
+                     : `<span title="${tooltipT}" style="color:#c0392b; font-size:10px; border:1px solid #c0392b; padding:1px 4px; border-radius:3px; cursor:help;">TRIBUTADO</span>`;
 
         const tr = document.createElement('tr');
         tr.onclick = () => selecionarProduto(d, tr);
@@ -565,7 +686,13 @@ function mudarAba(e, abaId) {
     document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
     document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
     document.getElementById(abaId).classList.add('active');
-    e.target.classList.add('active');
+    
+    // Se o evento for nulo (chamado via código), procura o botão correto manualmente
+    if (e) {
+        e.target.classList.add('active');
+    } else {
+        document.getElementById('btn-tab-formacao').classList.add('active');
+    }
 }
 
 function selecionarProduto(dados, elTr) {
@@ -603,7 +730,6 @@ function fecharSimulador() {
     document.querySelectorAll('tr.selected').forEach(tr => tr.classList.remove('selected'));
 }
 
-// Histórico com Váriaveis da Simulação
 function getInputsAtuais() {
     return {
         custoTab: lerInput('inCustoTabela'),
@@ -635,21 +761,47 @@ function atualizarInputsNoHistorico() {
     }
 }
 
+function removerItemHistorico(cest) {
+    let hist = JSON.parse(localStorage.getItem('histSim') || '[]');
+    hist = hist.filter(h => h.cest !== cest);
+    localStorage.setItem('histSim', JSON.stringify(hist));
+    renderizarHistorico();
+}
+
 function renderizarHistorico() {
     const hist = JSON.parse(localStorage.getItem('histSim') || '[]');
     const bar = document.getElementById('historyBar');
-    if(hist.length === 0) return;
+    if(hist.length === 0) {
+        bar.innerHTML = '<span style="color: #ccc; font-size: 11px; font-style: italic;">Nenhuma simulação recente.</span>';
+        return;
+    }
+    
     bar.innerHTML = "";
     hist.forEach(h => {
-        const btn = document.createElement('div');
-        btn.className = 'history-item';
-        btn.innerText = `${h.cest} - ${h.desc.substring(0,15)}...`;
-        btn.onclick = () => {
+        const wrap = document.createElement('div');
+        wrap.className = 'history-item';
+        
+        const spanTxt = document.createElement('span');
+        spanTxt.innerText = `${h.cest} - ${h.desc.substring(0,15)}...`;
+        
+        wrap.onclick = () => {
             const prod = baseDeDados.find(b => b.cest === h.cest);
             if(prod) selecionarProduto(prod, null);
             document.getElementById('simulador').scrollIntoView({behavior: 'smooth'});
         };
-        bar.appendChild(btn);
+
+        const btnX = document.createElement('button');
+        btnX.className = 'remove-hist';
+        btnX.innerHTML = '&times;';
+        btnX.title = "Remover do histórico";
+        btnX.onclick = (e) => {
+            e.stopPropagation();
+            removerItemHistorico(h.cest);
+        };
+
+        wrap.appendChild(spanTxt);
+        wrap.appendChild(btnX);
+        bar.appendChild(wrap);
     });
 }
 
@@ -738,8 +890,35 @@ function calcularInverso() {
     atualizarInputsNoHistorico();
 }
 
+// SINCRONIZADOR DE CUSTO (Cálculo Inverso -> Formação de Preço)
+function sincronizarCusto() {
+    if (!produtoSelecionado) return;
+    
+    // 1. Refaz o cálculo para pegar o número exato sem formatação de moeda
+    const custoCheio = lerInput('inInvCustoCheio');
+    const mva = parsePercent(produtoSelecionado.mva) / 100;
+    const iOut = parsePercent(produtoSelecionado.icms) / 100;
+    const iIn = lerInput('inInvIcmsEntrada') / 100;
+
+    const fatorST = ((1 + mva) * iOut) - iIn;
+    let cBase = custoCheio / (1 + fatorST);
+    if ((cBase * fatorST) < 0) { cBase = custoCheio; }
+    
+    // 2. Coloca o valor no campo de Formação de Preço (aba 1)
+    document.getElementById('inCustoTabela').value = cBase.toFixed(2).replace('.', ',');
+    
+    // 3. Muda a visualização para a aba 1 automaticamente
+    mudarAba(null, 'tab-formacao');
+    
+    // 4. Manda recalcular os cenários
+    calcular();
+    
+    // 5. Mostra o aviso de sucesso
+    mostrarToast("Valor sincronizado com sucesso!", "success");
+}
+
 // =================================================================================
-// 6. EXPORTAÇÕES (CSV E PDF AVANÇADO)
+// 6. EXPORTAÇÕES E UTILITÁRIOS
 // =================================================================================
 function mostrarToast(msg, tipo="success") {
     const container = document.getElementById('toastContainer');
@@ -765,7 +944,6 @@ function toggleDarkMode() {
     root.setAttribute("data-theme", isDark ? "light" : "dark");
 }
 
-// FUNÇÕES DE PDF REFORMULADAS
 function gerarPDFSimulacao() {
     if (!produtoSelecionado) return;
     gerarDocumentoPDFBuilder([{ prod: produtoSelecionado, inputs: getInputsAtuais() }], `Simulacao_${produtoSelecionado.cest}`);
@@ -784,7 +962,6 @@ function gerarPDFHistorico() {
     if (listaExport.length > 0) gerarDocumentoPDFBuilder(listaExport, "Historico_Simulacoes");
 }
 
-// Construtor do PDF (Refaz todos os calculos para garantir dados fieis no momento da exportação)
 function gerarDocumentoPDFBuilder(listaExport, tituloArquivo) {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
@@ -795,7 +972,6 @@ function gerarDocumentoPDFBuilder(listaExport, tituloArquivo) {
         const prod = item.prod;
         const inp = item.inputs || { custoTab: 100, descPct: 0, margem: 40, credIn: 12, custoCheioInv: 150, iInInv: 12 };
         
-        // Refaz Calculo Cenario A e B
         const icmsOut = parsePercent(prod.icms), mva = parsePercent(prod.mva);
         const taxaPis = (prod.pisCofins === 'T') ? 9.25 : 0;
         const custoNF = inp.custoTab * (1 - (inp.descPct / 100));
@@ -819,21 +995,17 @@ function gerarDocumentoPDFBuilder(listaExport, tituloArquivo) {
         let lucroRB = precoB - custoTotB - (precoB * (taxaPis / 100));
         let lucroPB = precoB>0 ? ((lucroRB/precoB)*100) : 0;
 
-        // Refaz Calculo Inverso
         const fatorST = ((1 + (mva/100)) * (icmsOut/100)) - (inp.iInInv/100);
         let cBase = inp.custoCheioInv / (1 + fatorST);
         let vST = 0;
         if ((cBase * fatorST) < 0) { cBase = inp.custoCheioInv; vST = 0; } else { vST = inp.custoCheioInv - cBase; }
 
-        // ----- DESENHO DO PDF -----
-        // Header
         doc.setFillColor(44, 62, 80);
         doc.rect(0, 0, 210, 20, 'F');
         doc.setTextColor(255, 255, 255);
         doc.setFontSize(14); doc.setFont(undefined, 'bold');
         doc.text("Analyst Gestão - Relatório de Simulação", 15, 13);
 
-        // Info Produto
         doc.setTextColor(51, 51, 51); doc.setFontSize(10);
         doc.text(`Item: ${prod.item}`, 15, 30);
         doc.text(`CEST: ${prod.cest}`, 70, 30);
@@ -844,7 +1016,6 @@ function gerarDocumentoPDFBuilder(listaExport, tituloArquivo) {
         doc.text(descLines, 15, 38);
         let y = 38 + (descLines.length * 5) + 5;
 
-        // ABA 1
         doc.setFontSize(12); doc.setFont(undefined, 'bold');
         doc.setTextColor(41, 128, 185);
         doc.text("FORMAÇÃO DE PREÇO (Cenário 1 e 2)", 15, y); y += 6;
@@ -852,7 +1023,6 @@ function gerarDocumentoPDFBuilder(listaExport, tituloArquivo) {
         doc.setFontSize(9); doc.setTextColor(100, 100, 100);
         doc.text(`Preço Tabela: R$ ${inp.custoTab.toFixed(2)} | Desconto: ${inp.descPct}% | Margem: ${inp.margem}% | Créd. Ent.: ${inp.credIn}% | MVA: ${prod.mva}`, 15, y); y += 8;
 
-        // Caixa Cenário 1
         doc.setDrawColor(200, 200, 200);
         doc.setFillColor(241, 248, 233);
         doc.rect(15, y, 85, 75, 'FD');
@@ -874,7 +1044,6 @@ function gerarDocumentoPDFBuilder(listaExport, tituloArquivo) {
         doc.setTextColor(39, 174, 96);
         doc.text(`Lucro Líq: ${formatarMoeda(lucroRA)} (${lucroPA.toFixed(2)}%)`, 20, yA);
 
-        // Caixa Cenário 2
         doc.setFillColor(243, 229, 245);
         doc.rect(105, y, 85, 75, 'FD');
         doc.setFont(undefined, 'bold'); doc.setTextColor(142, 68, 173);
@@ -896,7 +1065,6 @@ function gerarDocumentoPDFBuilder(listaExport, tituloArquivo) {
 
         y += 90;
 
-        // ABA 2
         doc.setFontSize(12); doc.setFont(undefined, 'bold');
         doc.setTextColor(230, 126, 34);
         doc.text("CÁLCULO INVERSO (Extração de ST)", 15, y); y += 6;
@@ -924,7 +1092,6 @@ function gerarDocumentoPDFBuilder(listaExport, tituloArquivo) {
     doc.save(`${tituloArquivo}.pdf`);
     mostrarToast("PDF gerado com sucesso!", "success");
 }
-
 </script>
 </body>
 </html>
